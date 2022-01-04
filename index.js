@@ -55,12 +55,12 @@ async function playGame(mine) {
   console.log(phase['action'])
   switch (phase['action']) {
     case 'create-game':
-      phaseLogger(gameState)
+      //phaseLogger(gameState)
       //wait for opponent to go
       break;
     case 'attack':
       phaseLogger(gameState)
-      //idk
+      //idk, when this phase is the case, I think I need to reinforce
       crabs = await getCrabsForHire()
       crab = await chooseCrab(crabs)
       if (await checkPriceAgainstLimit(crab)) {
@@ -78,7 +78,7 @@ async function playGame(mine) {
       break
     case 'reinforce-defense':
       phaseLogger(gameState)
-
+      //don;t actually think this code ever runs
       crabs = await getCrabsForHire()
       crab = await chooseCrab(crabs)
       if (await checkPriceAgainstLimit(crab)) {
@@ -96,6 +96,21 @@ async function playGame(mine) {
     case 'reinforce-attack':
 
       phaseLogger(gameState)
+      //idk, when this phase is the case, I think I need to reinforce
+      crabs = await getCrabsForHire()
+      crab = await chooseCrab(crabs)
+      if (await checkPriceAgainstLimit(crab)) {
+        console.log(`${crab}dis one`)
+        console.log(crab)
+        reinforceTeam(mine['result']['game_id'], crab['id'], crab['price'])
+        break
+      } else {
+        console.log("too expensive or other failure")
+        exit()
+        phaseLogger(gameState)
+        break
+      }
+      //idk
       break
 
       phaseLogger(gameState)

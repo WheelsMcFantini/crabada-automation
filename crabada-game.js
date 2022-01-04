@@ -43,7 +43,7 @@ async function getCrabsForHire() {
 }
 
 async function chooseCrab(crabList) {
-  return crabList[1]
+  return crabList[3]
   /*
   Choose a crab from the marketplace. Maybe have selection type?
   Needs: Cost, BP, MP, is_being_borrowed

@@ -8,7 +8,7 @@ const BN = web3.utils.BN;
 //HEX Helper
 function convertNumberToPaddedHex(number){
     //takes a number, uses numberToHex, then pads the value to 64 
-    bn = new BN(number)
+    const bn = web3.utils.toBN(number)
     //converts cn to hex, leftPads the value to len 64, then trims the hex prefix
     return web3.utils.stripHexPrefix(web3.utils.padLeft(`${web3.utils.numberToHex(bn)}`, 64))
 }
@@ -60,8 +60,8 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 
     //TODO: Logic to build the reinforce game data
     gameId = convertNumberToPaddedHex(gameId)
-    crabadaId = convertNumberToPaddedHex(gameId)
-    borrowPrice = convertNumberToPaddedHex(gameId)
+    crabadaId = convertNumberToPaddedHex(crabadaId)
+    borrowPrice = convertNumberToPaddedHex(borrowPrice)
 
 
     const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
