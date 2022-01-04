@@ -1,0 +1,13 @@
+{
+  "name": "crabada",
+  "version": "1.0.0",
+  "description": "Automatically plays the Crabada Idle Game",
+  "main": "index.js",
+  "author": "Wheels McFantini",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "node-fetch": "2",
+    "web3": "^1.6.1"
+  }
+}
