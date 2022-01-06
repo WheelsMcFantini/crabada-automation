@@ -64,8 +64,8 @@ async function playGame(mine) {
       crabs = await getCrabsForHire()
       crab = await chooseCrab(crabs)
       if (await checkPriceAgainstLimit(crab)) {
-        console.log(`${crab}dis one`)
-        console.log(crab)
+        //console.log(`${crab}dis one`)
+        //console.log(crab)
         reinforceTeam(mine['result']['game_id'], crab['id'], crab['price'])
         break
       } else {
@@ -82,8 +82,8 @@ async function playGame(mine) {
       crabs = await getCrabsForHire()
       crab = await chooseCrab(crabs)
       if (await checkPriceAgainstLimit(crab)) {
-        console.log(`${crab}dis one`)
-        console.log(crab)
+        //console.log(`${crab}dis one`)
+        //console.log(crab)
         reinforceTeam(mine['result']['game_id'], crab['id'], crab['price'])
         break
       } else {
@@ -118,6 +118,9 @@ async function playGame(mine) {
       break
     case 'settle':
       phaseLogger(gameState)
+      gameEnd = new Date(mine['result']['end_time'] * 1000)
+      console.log(gameEnd)
+      //don't try to end just yet
       endGame(mine['result']['game_id'])
       break
     case 'start':
