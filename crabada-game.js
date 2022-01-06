@@ -56,7 +56,7 @@ async function chooseCrab(listOfCrabsToHire){
   //console.log(bestCrabs)
   bestCrabs.sort(function(a, b){return b['value'] - a['value']})
   //console.log("post-sort")
-  //console.log(bestCrabs)
+  console.log(bestCrabs)
   return bestCrabs
 }
 
