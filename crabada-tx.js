@@ -3,7 +3,6 @@ require('dotenv').config();
 const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
-const BN = web3.utils.BN;
 
 //HEX Helper
 function convertNumberToPaddedHex(number){
@@ -137,8 +136,8 @@ async function checkPriceAgainstLimit(crab){
     console.log(crab)
     const bn = web3.utils.toBN(crab['price'])
     const priceCap = web3.utils.toBN("30000000000000000000")
-    console.log(await web3.utils.fromWei(bn, 'finney'))
-    console.log(await web3.utils.fromWei(priceCap, 'finney'))
+    console.log(await web3.utils.fromWei(bn, 'Ether'))
+    console.log(await web3.utils.fromWei(priceCap, 'Ether'))
     if (bn.lte(priceCap)){
         console.log(`${bn} is less than ${priceCap}`)
         console.log("renting crab?")

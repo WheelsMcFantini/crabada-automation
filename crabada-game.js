@@ -42,14 +42,22 @@ async function getCrabsForHire() {
   return tavern['result']['data']
 }
 
-async function chooseCrab(crabList) {
-  return crabList[3]
-  /*
-  Choose a crab from the marketplace. Maybe have selection type?
-  Needs: Cost, BP, MP, is_being_borrowed
-  Take an array of crabs, and pick the "best" crab from the list.
-  the "Best" crab must be under budget, ideally it gives us an advantage over out opponent
-  */
+async function chooseCrab(listOfCrabsToHire){
+  bestCrabs = []
+  for (i in listOfCrabsToHire){
+      //console.log(listOfCrabsToHire[i])
+      crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
+      //if positive, add to best crabs, otherwise, next.
+      if (Math.sign(crabMeta['value']) ==1) {
+          bestCrabs.push(crabMeta)
+      }
+  }
+  console.log("pre-sort")
+  console.log(bestCrabs)
+  bestCrabs.sort(function(a, b){return b['value'] - a['value']})
+  console.log("post-sort")
+  console.log(bestCrabs)
+  return bestCrabs
 }
 
 async function calculateMR(mine, crab) {
