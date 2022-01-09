@@ -8,6 +8,10 @@ USER_MINES_PATH = '/public/idle/mines?user_address='
 MINE_PATH = '/public/idle/mine/'
 TEAM_PATH = '/public/idle/teams?user_address='
 EXTRA_OPTS = '&page=1&status=open&limit=8'
+require('dotenv').config();
+const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
+const Web3 = require('web3');
+const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 
 //currently supports a single game, function returns the Game_ID
 async function retrieveLatestGameInfo(address) {
@@ -42,7 +46,7 @@ async function getCrabsForHire() {
   return tavern['result']['data']
 }
 
-async function chooseCrab(listOfCrabsToHire){
+async function chooseCrab(mine, listOfCrabsToHire){
   bestCrabs = []
   for (i in listOfCrabsToHire){
       //console.log(listOfCrabsToHire[i])
@@ -73,6 +77,7 @@ async function calculateMR(mine, crab) {
   crabList.push(crab)
 
   mpMod = getMPMod(crabList)
+
   bpMod = getBPMod(mine)
 
   potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
@@ -89,6 +94,7 @@ async function calculateMR(mine, crab) {
 function getMPMod(crabList) {
   total = 0
   for (crab in crabList) {
+    
     mp = crabList[crab]['critical'] + crabList[crab]['speed']
     total += mp
   }

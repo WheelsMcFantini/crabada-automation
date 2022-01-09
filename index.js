@@ -97,7 +97,7 @@ async function playGame(mine) {
       phaseLogger(gameState)
       //idk, when this phase or attack is the most recent, I think I need to reinforce
       crabsForHire = await getCrabsForHire()
-      crabs = await chooseCrab(crabsForHire)
+      crabs = await chooseCrab(mine, crabsForHire)
       //crabs is now an ordered list of the best crabs instead of 1 crab
       if (await checkPriceAgainstLimit(crabs[0])) {
         console.log(`${crabs[0]}dis one`)
@@ -121,7 +121,7 @@ async function playGame(mine) {
       console.log(gameEnd)
       console.log(currentTime)
       console.log(timeUntilGameEnds)
-      //don't try to end just yet
+
       if (Math.sign(timeUntilGameEnds) ==1) {
         console.log(`game still running until ${gameEnd}`)
         setTimeout(function() {
@@ -132,7 +132,7 @@ async function playGame(mine) {
         console.log(`Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
         endGame(mine['result']['game_id'])
       }
-    
+
       break
     case 'start':
       console.log("Starting game...")
