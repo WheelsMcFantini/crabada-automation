@@ -8,6 +8,10 @@ USER_MINES_PATH = '/public/idle/mines?user_address='
 MINE_PATH = '/public/idle/mine/'
 TEAM_PATH = '/public/idle/teams?user_address='
 EXTRA_OPTS = '&page=1&status=open&limit=8'
+require('dotenv').config();
+const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
+const Web3 = require('web3');
+const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 
 //currently supports a single game, function returns the Game_ID
 async function retrieveLatestGameInfo(address) {
@@ -42,34 +46,55 @@ async function getCrabsForHire() {
   return tavern['result']['data']
 }
 
-async function chooseCrab(crabList) {
-  return crabList[3]
-  /*
-  Choose a crab from the marketplace. Maybe have selection type?
-  Needs: Cost, BP, MP, is_being_borrowed
-  Take an array of crabs, and pick the "best" crab from the list.
-  the "Best" crab must be under budget, ideally it gives us an advantage over out opponent
-  */
+async function chooseCrab(mine, listOfCrabsToHire){
+  bestCrabs = []
+  for (i in listOfCrabsToHire){
+      //console.log(listOfCrabsToHire[i])
+      crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
+      //if positive, add to best crabs, otherwise, next.
+      if (Math.sign(crabMeta['value']) ==1) {
+          bestCrabs.push(crabMeta)
+      }
+  }
+  //console.log("pre-sort")
+  //console.log(bestCrabs)
+  bestCrabs.sort(function(a, b){return b['value'] - a['value']})
+  //console.log("post-sort")
+  console.log(bestCrabs)
+  return bestCrabs
 }
 
 async function calculateMR(mine, crab) {
   //First I Want to enumerate all the Crabs MP and figure out the modifier
   const BASE_CHANCE = 7.0
   let crabList = mine['result']['defense_team_info']
-  crabList.push(crab)
-
 
   mpMod = getMPMod(crabList)
   bpMod = getBPMod(mine)
+  currentMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
 
-  minersRevengeChance = BASE_CHANCE + mpMod + bpMod
-  return minersRevengeChance
+  //add potential crab to the team for calculations
+  crabList.push(crab)
+
+  mpMod = getMPMod(crabList)
+
+  bpMod = getBPMod(mine)
+
+  potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
+  difference = potentialMinersRevengeChance - currentMinersRevengeChance
+
+  console.log(`Current MR chance is ${currentMinersRevengeChance}%, potential MR chance with crab-${crab['id']} becomes ${potentialMinersRevengeChance}, a difference of ${difference}`)
+  const bn = await web3.utils.toBN(crab['price'])
+  numTus = await web3.utils.fromWei(bn, 'Ether')
+  console.log(`With a price of ${numTus} TUS and a bonus of ${difference}, this crab gets you ${difference/numTus} MR chance per TUS`)
+  return {'id': crab['id'],'price': crab['price'], 'value': difference/numTus}
 }
 
 //Takes a list of crabs as input and calculates the MP mod for Miners revenge
 function getMPMod(crabList) {
   total = 0
   for (crab in crabList) {
+    
     mp = crabList[crab]['critical'] + crabList[crab]['speed']
     total += mp
   }
