@@ -2,6 +2,21 @@ const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, getCurrentStage, c
 const { startGame, reinforceTeam, endGame, checkPriceAgainstLimit } = require('./crabada-tx.js')
 require('dotenv').config();
 const { ADDRESS } = process.env;
+const { format, createLogger, transports } = require('winston')
+
+const logger = createLogger({
+  format: format.combine(
+    format.timestamp({
+      format: 'YYYY-MM-DD HH:mm:ss'
+    }),
+    format.errors({ stack: true }),
+    format.splat(),
+    format.json()),
+    transports: [
+    new transports.Console(),
+    new transports.File({ filename: 'combined.log' })
+  ]
+});
 
 
 
@@ -51,7 +66,8 @@ async function playGame(mine) {
     case 'attack': //means they have just attacked me
     case 'reinforce-attack': //means they have just reinforced their attack
       if (gameState.length > 4){
-        console.log("no need to reinforce a third time, wait for settle")
+        //console.log("no need to reinforce a third time, wait for settle")
+        logger.info("no need to reinforce a third time, wait for settle")
         //should sleep for an hour or so
         break
       }
@@ -97,7 +113,7 @@ async function playGame(mine) {
       break
     case 'start':
       console.log("Starting game...")
-      startGame()
+      startGame(mine['result']['team_id'])
       break
   }
 }

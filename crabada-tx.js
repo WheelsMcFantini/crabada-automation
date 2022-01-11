@@ -13,14 +13,16 @@ function convertNumberToPaddedHex(number){
 }
 
 //Game Functions
-async function startGame() {    
+async function startGame(teamId) {    
     /*
     Function: startGame(uint256 teamId) ***
 
     MethodID: 0xe5ed1d59
     [0]:  0000000000000000000000000000000000000000000000000000000000000d13
     */
-    const startGameData = '0xe5ed1d5900000000000000000000000000000000000000000000000000000000000013B4'
+    teamId = convertNumberToPaddedHex(teamId)
+    const startGameData = `0xe5ed1d59${teamId}`
+    //const startGameData = '0xe5ed1d5900000000000000000000000000000000000000000000000000000000000013B4'
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
     const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': startGameData, 'nonce': nonce})
 
