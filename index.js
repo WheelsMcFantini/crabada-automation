@@ -37,46 +37,6 @@ function phaseLogger(gameState) {
   }
 }
 
-/*TODO:
-Game flow only needs to know:
-1. When to start - When there's no game
-2. When to end - when the state is wait to settle, and the timestamp is passed
-3. When to reinforce - when the action is attack or reinforce attack
-4. When to do nothing
-
-GAME START = when no game ID
-REINFORCE1 = when the most recent phase is attack
-REINFORCE2 = when the most recent phase is reinforce-attack + length = 4 (start, atk, reinf, atk) but not 5 (start, atk, reinf, re-atk, reinf, re-atk)
-GAME END
-
-While True:
-  repeatedly check the status of the game and evaulate whether we need an action
-  when we need an action, perform it
-
-
-ROUNDS:
-Null = "process":[{"action":"create-game","transaction_time":1640105351}]
-- len 1 = await attack
-- get attacked
-0 = "process":[{"action":"create-game","transaction_time":1640105534},{"action":"attack","transaction_time":1640105538}]
-- len 2 = been attacked
-- reinforce defense 1
-1 = "process":[{"action":"create-game","transaction_time":1640105520},{"action":"attack","transaction_time":1640105525},{"action":"reinforce-defense","transaction_time":1640105615}]
-- len 3 = reinforced def 1
-- reinforce attack 1
-2 = "process":[{"action":"create-game","transaction_time":1640105520},{"action":"attack","transaction_time":1640105525},{"action":"reinforce-defense","transaction_time":1640105615},{"action":"reinforce-attack","transaction_time":1640105804}]
-- len 4 = attack reinforced 1
-- reinforce defense 2
-3 = "process":[{"action":"create-game","transaction_time":1640105731},{"action":"attack","transaction_time":1640105733},{"action":"reinforce-defense","transaction_time":1640105826},{"action":"reinforce-attack","transaction_time":1640105886},{"action":"reinforce-defense","transaction_time":1640105944}]
-- len 5 = attack reinforced 1
-- reinforce attack 2
-4 = "process":[{"action":"create-game","transaction_time":1640105731},{"action":"attack","transaction_time":1640105733},{"action":"reinforce-defense","transaction_time":1640105826},{"action":"reinforce-attack","transaction_time":1640105886},{"action":"reinforce-defense","transaction_time":1640105944},{"action":"reinforce-attack","transaction_time":1640105963}]
-- Wait for Crabada to "settle" the game
-4 = "process":[{"action":"create-game","transaction_time":1640092454},{"action":"attack","transaction_time":1640092458},{"action":"reinforce-defense","transaction_time":1640092520},{"action":"reinforce-attack","transaction_time":1640092524},{"action":"reinforce-defense","transaction_time":1640092589},{"action":"reinforce-attack","transaction_time":1640092594},{"action":"settle","transaction_time":1640096090}]
-- close game
-status closed = "process":[{"action":"create-game","transaction_time":1640092454},{"action":"attack","transaction_time":1640092458},{"action":"reinforce-defense","transaction_time":1640092520},{"action":"reinforce-attack","transaction_time":1640092524},{"action":"reinforce-defense","transaction_time":1640092589},{"action":"reinforce-attack","transaction_time":1640092594},{"action":"settle","transaction_time":1640096090},{"action":"close-game","transaction_time":1640106934}]
-*/
-
 
 async function playGame(mine) {
   const gameState = mine['result']['process']
