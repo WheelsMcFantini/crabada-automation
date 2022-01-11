@@ -39,7 +39,7 @@ async function getMineInfo(mine_id) {
 //might make sense to feed a type of sort in?
 //I search for: Cheapest, strongest, most skilled
 async function getCrabsForHire() {
-  const url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=price&order=asc&page=1&limit=10'
+  const url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
   console.log(`[Crabada-Game] Retrieving mercenary info from Tavern`)
   const data = await fetch(url)
   const tavern = await data.json()
@@ -67,7 +67,7 @@ async function chooseCrab(mine, listOfCrabsToHire){
 async function calculateMR(mine, crab) {
   //First I Want to enumerate all the Crabs MP and figure out the modifier
   const BASE_CHANCE = 7.0
-  let crabList = mine['result']['defense_team_info']
+  let crabList = [...mine['result']['defense_team_info']]
 
   mpMod = getMPMod(crabList)
   bpMod = getBPMod(mine)
@@ -93,12 +93,14 @@ async function calculateMR(mine, crab) {
 //Takes a list of crabs as input and calculates the MP mod for Miners revenge
 function getMPMod(crabList) {
   total = 0
+  console.log(crabList)
   for (crab in crabList) {
-    
-    mp = crabList[crab]['critical'] + crabList[crab]['speed']
-    total += mp
+      //console.log(crabList[crab])
+      mp = crabList[crab]['critical'] + crabList[crab]['speed']
+      total += mp
+      console.log(total)
   }
-  console.log(`total mp:${total}`)
+  //console.log(`total mp:${total}`)
 
   //((average MP - 56)*1.25)
   return (((total / crabList.length) - 56) * 1.25)

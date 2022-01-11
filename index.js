@@ -1,6 +1,7 @@
 const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, getCurrentStage, chooseCrab } = require('./crabada-game.js')
 const { startGame, reinforceTeam, endGame, checkPriceAgainstLimit } = require('./crabada-tx.js')
-const address = '0xF26DC84E3bC6F8C59663581fa6978C74496Efb15'
+require('dotenv').config();
+const { ADDRESS } = process.env;
 
 
 
@@ -143,11 +144,11 @@ async function playGame(mine) {
 
 
 async function gameRunner() {
-  console.log(`[Game-runner] Retrieving lastest game ID for ${address}`)
-  game_id = await retrieveLatestGameInfo(address)
+  console.log(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
+  game_id = await retrieveLatestGameInfo(ADDRESS)
   console.log(game_id)
   if (game_id == 'NO_GAME') {
-    console.log(`[Game-runner] no game ID found for ${address}, attempting to start game...`)
+    console.log(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
     startGame()
   } else {
     const mine = await getMineInfo(game_id)
