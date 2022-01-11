@@ -135,13 +135,12 @@ async function checkPriceAgainstLimit(crab){
     console.log("crab here:")
     console.log(crab)
     const bn = web3.utils.toBN(crab['price'])
-    const priceCap = web3.utils.toBN("30000000000000000000")
+    const priceCap = web3.utils.toBN("35000000000000000000")
     console.log(await web3.utils.fromWei(bn, 'Ether'))
     console.log(await web3.utils.fromWei(priceCap, 'Ether'))
     if (bn.lte(priceCap)){
         console.log(`${bn} is less than ${priceCap}`)
         console.log("renting crab?")
-        17000000000000000000
         return true
     } else {
         console.log(`${bn} is greater than ${priceCap}`)

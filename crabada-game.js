@@ -39,7 +39,7 @@ async function getMineInfo(mine_id) {
 //might make sense to feed a type of sort in?
 //I search for: Cheapest, strongest, most skilled
 async function getCrabsForHire() {
-  const url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=price&order=asc&page=1&limit=10'
+  const url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
   console.log(`[Crabada-Game] Retrieving mercenary info from Tavern`)
   const data = await fetch(url)
   const tavern = await data.json()
