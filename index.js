@@ -121,13 +121,13 @@ async function playGame(mine) {
 
 async function gameRunner() {
   console.log(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
-  game_id = await retrieveLatestGameInfo(ADDRESS)
-  console.log(game_id)
-  if (game_id == 'NO_GAME') {
+  game_info = await retrieveLatestGameInfo(ADDRESS)
+  console.log(game_info)
+  if (game_info['game_id'] == 'NO_GAME') {
     console.log(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
-    startGame()
+    startGame(game_info['team_id'])
   } else {
-    const mine = await getMineInfo(game_id)
+    const mine = await getMineInfo(game_info)
     //console.log(`[Game-runner] Retrieved object for Mine ${latestGameID}:`)
     console.log(`[Game-runner] ${JSON.stringify(mine)}`)
 

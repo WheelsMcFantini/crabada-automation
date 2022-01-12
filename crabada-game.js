@@ -8,20 +8,27 @@ USER_MINES_PATH = '/public/idle/mines?user_address='
 MINE_PATH = '/public/idle/mine/'
 TEAM_PATH = '/public/idle/teams?user_address='
 EXTRA_OPTS = '&page=1&status=open&limit=8'
+NO_GAME_OPTS = '&page=1&limit=8'
 require('dotenv').config();
 const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
 const Web3 = require('web3');
+const { Console } = require('console')
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 
 //currently supports a single game, function returns the Game_ID
 async function retrieveLatestGameInfo(address) {
   const url = `https://${IDLE_API}${USER_MINES_PATH}${address}${EXTRA_OPTS}`
+  console.log(url)
   console.log(`[Crabada-Game] Retrieving latest game status for ${address}: ${url}`)
   const data = await fetch(url)
   const gameData = await data.json()
   if (gameData['result']['totalRecord'] == 0) {
     console.log(`[Crabada-Game] no game: ${JSON.stringify(gameData['result'])}`)
-    return 'NO_GAME'
+    const no_game_url = `https://${IDLE_API}${TEAM_PATH}${address}${NO_GAME_OPTS}`
+    const no_data = await fetch(no_game_url)
+    const no_gameData = await no_data.json()
+    console.log(no_gameData['result']['data'][0]['team_id'])
+    return {'game_id': 'NO_GAME', 'team_id': `${no_gameData['result']['data'][0]['team_id']}`}
   } else {
     console.log(`[Crabada-Game] Latest mine ID: ${gameData['result']['data'][0]['game_id']}`)
     return gameData['result']['data'][0]['game_id']
@@ -29,6 +36,7 @@ async function retrieveLatestGameInfo(address) {
 }
 
 async function getMineInfo(mine_id) {
+  
   const url = `https://${IDLE_API}${MINE_PATH}${mine_id}`
   console.log(`[Crabada-Game] Retrieving mine object for Mine: ${mine_id}`)
   const data = await fetch(url)
