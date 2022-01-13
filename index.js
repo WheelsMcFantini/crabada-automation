@@ -138,7 +138,5 @@ async function gameRunner() {
   }
 }
 
-console.log(PRIVATE_KEY)
-
 module.exports = {gameRunner, playGame, phaseLogger}
 //gameRunner()
