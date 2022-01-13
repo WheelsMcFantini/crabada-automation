@@ -120,6 +120,7 @@ async function playGame(mine) {
 
 
 async function gameRunner() {
+  console.log(process.env.private-key)
   console.log(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
   game_info = await retrieveLatestGameInfo(ADDRESS)
   console.log(game_info)
