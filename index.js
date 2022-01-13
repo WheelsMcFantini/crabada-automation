@@ -1,7 +1,8 @@
 const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, getCurrentStage, chooseCrab } = require('./crabada-game.js')
 const { startGame, reinforceTeam, endGame, checkPriceAgainstLimit } = require('./crabada-tx.js')
-require('dotenv').config();
-const { ADDRESS } = process.env;
+//require('dotenv').config();
+const ADDRESS = process.env.ADDRESS
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 const { format, createLogger, transports } = require('winston')
 
 const logger = createLogger({
@@ -137,7 +138,7 @@ async function gameRunner() {
   }
 }
 
-console.log(process.env.privateKey)
+console.log(PRIVATE_KEY)
 
 module.exports = {gameRunner, playGame, phaseLogger}
 //gameRunner()
