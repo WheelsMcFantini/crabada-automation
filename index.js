@@ -137,5 +137,5 @@ async function gameRunner() {
   }
 }
 
-
-gameRunner()
+module.exports = {gameRunner, playGame, phaseLogger}
+//gameRunner()
