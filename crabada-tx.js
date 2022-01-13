@@ -1,6 +1,10 @@
 //Contains each AVAX transaction needed for gameplay plus helper methods
-require('dotenv').config();
-const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
+//require('dotenv').config();
+//const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
+const AVAX_API_URL = process.env.AVAX_API_URL
+const PRIVATE_KEY = process.env.PRIVATE_KEY
+const ADDRESS = process.env.ADDRESS
+const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 
