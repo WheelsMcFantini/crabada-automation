@@ -120,8 +120,6 @@ async function playGame(mine) {
 
 
 async function gameRunner() {
-  const privateKey = process.env.privateKey
-  console.log(process.env.privateKey)
   console.log(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
   game_info = await retrieveLatestGameInfo(ADDRESS)
   console.log(game_info)
@@ -138,6 +136,8 @@ async function gameRunner() {
     playGame(mine)
   }
 }
+
+console.log(process.env.privateKey)
 
 module.exports = {gameRunner, playGame, phaseLogger}
 //gameRunner()
