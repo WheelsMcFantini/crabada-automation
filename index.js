@@ -102,10 +102,10 @@ async function playGame(mine) {
 
       if (Math.sign(timeUntilGameEnds) ==1) {
         console.log(`game still running until ${gameEnd}`)
-        setTimeout(function() {
-          console.log("Time's up! Game should be over now")
-          endGame(mine['result']['game_id'])
-      }, timeUntilGameEnds);
+        //setTimeout(function() {
+        //  console.log("Time's up! Game should be over now")
+        //  endGame(mine['result']['game_id'])
+      //}, timeUntilGameEnds);
       } else {
         console.log(`Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
         endGame(mine['result']['game_id'])
