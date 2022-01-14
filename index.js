@@ -122,7 +122,7 @@ async function playGame(mine) {
 
 
 async function gameRunner() {
-  if (ACTIVE == 'False'){exit()}
+  if (ACTIVE == 'False'){process.exit()}
   console.log(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
   game_info = await retrieveLatestGameInfo(ADDRESS)
   console.log(game_info)
