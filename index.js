@@ -3,6 +3,7 @@ const { startGame, reinforceTeam, endGame, checkPriceAgainstLimit } = require('.
 //require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const PRIVATE_KEY = process.env.PRIVATE_KEY
+const ACTIVE = process.env.ACTIVE
 const { format, createLogger, transports } = require('winston')
 
 const logger = createLogger({
@@ -121,6 +122,7 @@ async function playGame(mine) {
 
 
 async function gameRunner() {
+  if (ACTIVE == 'False'){exit()}
   console.log(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
   game_info = await retrieveLatestGameInfo(ADDRESS)
   console.log(game_info)
