@@ -103,7 +103,7 @@ async function calculateMR(mine, crab) {
 //Takes a list of crabs as input and calculates the MP mod for Miners revenge
 function getMPMod(crabList) {
   total = 0
-  console.log(crabList)
+  //console.log(crabList)
   for (crab in crabList) {
       //console.log(crabList[crab])
       mp = crabList[crab]['critical'] + crabList[crab]['speed']
