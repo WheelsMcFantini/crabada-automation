@@ -90,7 +90,10 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
         } else {
             console.log("❗Something went wrong while submitting your transaction:", error)
         }
-    });
+    })
+    .catch((error) => {
+        console.log(error);
+      });
 }
 
 async function endGame(gameId) {
