@@ -19,7 +19,7 @@ const logger = createLogger({
     format.json()),
     transports: [
     new transports.Console(),
-    new transports.File({ filename: 'combined.log' })
+    //new transports.File({ filename: 'combined.log' })
   ]
 });
 
