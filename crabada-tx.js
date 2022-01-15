@@ -58,9 +58,9 @@ async function startGame(teamId) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.notice("🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.notice("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
-            logger.error("❗Something went wrong while submitting your transaction:", error)
+            logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
     });
 }
@@ -101,13 +101,13 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.notice("🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.notice("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
-            logger.error("❗Something went wrong while submitting your transaction:", error)
+            logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
     })
     .catch((error) => {
-        logger.error(error);
+        logger.error(`[Crabada-transaction] ${error}`);
       });
 }
 
@@ -148,9 +148,9 @@ async function endGame(gameId) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.notice("🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.notice("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
-            logger.error("❗Something went wrong while submitting your transaction:", error)
+            logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
     });
 }
@@ -163,12 +163,12 @@ async function checkPriceAgainstLimit(crab){
     //console.log(await web3.utils.fromWei(bn, 'Ether'))
     //console.log(await web3.utils.fromWei(priceCap, 'Ether'))
     if (bn.lte(priceCap)){
-        logger.info(`${bn} is less than ${priceCap}`)
-        logger.info("renting crab?")
+        logger.info(`[Crabada-transaction] ${bn} is less than ${priceCap}`)
+        logger.info("[Crabada-transaction] renting crab?")
         return true
     } else {
-        logger.warn(`${bn} is greater than ${priceCap}`)
-        logger.warn("Crabs too expensive! Try again later")
+        logger.warn(`[Crabada-transaction] ${bn} is greater than ${priceCap}`)
+        logger.warn("[Crabada-transaction] Crabs too expensive! Try again later")
         return false
     }
 }

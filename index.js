@@ -59,7 +59,7 @@ async function playGame(mine) {
   const gameState = mine['result']['process']
   let phase = gameState[gameState.length - 1]
   //console.log(gameState[gameState.length - 1]['action'])
-  logger.info(`current phase: ${phase['action']}`)
+  logger.info(`[Game-runner] current phase: ${phase['action']}`)
   switch (phase['action']) {
     case 'create-game':
       //phaseLogger(gameState)
@@ -69,7 +69,7 @@ async function playGame(mine) {
     case 'reinforce-attack': //means they have just reinforced their attack
       if (gameState.length > 4){
         //console.log("no need to reinforce a third time, wait for settle")
-        logger.info("no need to reinforce a third time, wait for settle")
+        logger.info("[Game-runner] no need to reinforce a third time, wait for settle")
         //should sleep for an hour or so
         break
       }
@@ -79,12 +79,12 @@ async function playGame(mine) {
       crabs = await chooseCrab(mine, crabsForHire)
       //crabs is now an ordered list of the best crabs instead of 1 crab
       if (await checkPriceAgainstLimit(crabs[0])) {
-        logger.info(`selecting the following crab ${crabs[0]}`)
+        logger.info(`[Game-runner] selecting the following crab ${crabs[0]}`)
         reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
-        .then(logger.notice("Team Reinforced"))
+        .then(logger.notice("[Game-runner] Team Reinforced"))
         break
       } else {
-        logger.warn("Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
+        logger.warn("[Game-runner] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
         process.exit(0)
       }
     case 'reinforce-defense': //means it's their turn, and I need to chill
@@ -100,21 +100,21 @@ async function playGame(mine) {
       //console.log(timeUntilGameEnds)
 
       if (Math.sign(timeUntilGameEnds) ==1) {
-        logger.info(`game still running until ${gameEnd}`)
+        logger.info(`[Game-runner] game still running until ${gameEnd}`)
         //setTimeout(function() {
         //  console.log("Time's up! Game should be over now")
         //  endGame(mine['result']['game_id'])
       //}, timeUntilGameEnds);
       } else {
-        logger.info(`Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
+        logger.info(`[Game-runner] Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
         endGame(mine['result']['game_id'])
       }
 
       break
     case 'start':
-      logger.info("Starting game...")
+      logger.info("[Game-runner] Starting game...")
       startGame(mine['result']['team_id'])
-      .then(logger.notice("Game started"))
+      .then(logger.notice("[Game-runner] Game started"))
       break
   }
 }
