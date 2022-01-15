@@ -81,7 +81,7 @@ async function playGame(mine) {
       if (await checkPriceAgainstLimit(crabs[0])) {
         logger.info(`[Game-runner] selecting the following crab ${crabs[0]}`)
         reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
-        .then(logger.notice("[Game-runner] Team Reinforced"))
+        .then(logger.http("[Game-runner] Team Reinforced"))
         break
       } else {
         logger.warn("[Game-runner] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
@@ -114,7 +114,7 @@ async function playGame(mine) {
     case 'start':
       logger.info("[Game-runner] Starting game...")
       startGame(mine['result']['team_id'])
-      .then(logger.notice("[Game-runner] Game started"))
+      .then(logger.http("[Game-runner] Game started"))
       break
   }
 }

@@ -58,7 +58,7 @@ async function startGame(teamId) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.notice("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.http("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
             logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
@@ -101,7 +101,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.notice("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.http("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
             logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
@@ -148,7 +148,7 @@ async function endGame(gameId) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.notice("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.http("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
             logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }

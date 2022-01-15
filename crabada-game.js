@@ -40,7 +40,7 @@ async function retrieveLatestGameInfo(address) {
   const data = await fetch(url)
   const gameData = await data.json()
   if (gameData['result']['totalRecord'] == 0) {
-    logger.notice(`[Crabada-game] no game: ${JSON.stringify(gameData['result'])}`)
+    logger.http(`[Crabada-game] no game: ${JSON.stringify(gameData['result'])}`)
     const no_game_url = `https://${IDLE_API}${TEAM_PATH}${address}${NO_GAME_OPTS}`
     const no_data = await fetch(no_game_url)
     const no_gameData = await no_data.json()
