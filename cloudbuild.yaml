@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/gcloud'
-- id: M1
+- id: 'M1'
   args:
   - 'functions'
   - 'deploy'
@@ -13,7 +13,7 @@ steps:
   - '--set-secrets=PRIVATE_KEY=new-exclusive-secret:1'
 
 - name: 'gcr.io/cloud-builders/gcloud'
-- id: M2
+- id: 'M2'
   waitFor: ['-']
   args:
   - 'functions'
