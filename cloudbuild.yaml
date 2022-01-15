@@ -1,0 +1,12 @@
+steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - 'functions'
+  - 'deploy'
+  - '$_FUNCTION_NAME'
+  - '--runtime=node'
+  - '--entry-point=gameRunner'
+  - '--trigger-http'
+
+substitutions:
+  _FUNCTION_NAME: Crabada-mtest
