@@ -8,6 +8,7 @@ steps:
   - '--entry-point=gameRunner'
   - '--trigger-http'
   - '--region=us-east-1'
+  - '--project=Crabada-automation'
 
 
 substitutions:
