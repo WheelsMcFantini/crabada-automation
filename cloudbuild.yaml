@@ -7,6 +7,7 @@ steps:
   - '--runtime=node'
   - '--entry-point=gameRunner'
   - '--trigger-http'
+  - '--region=us-east-1'
 
 
 substitutions:
