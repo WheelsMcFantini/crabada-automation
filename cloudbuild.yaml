@@ -4,14 +4,14 @@ steps:
   - 'beta'
   - 'functions'
   - 'deploy'
-  - '$_FUNCTION_NAME'
+  - '$_FUNCTION_NAME1'
   - '--runtime=nodejs16'
   - '--entry-point=gameRunner'
-  - '--trigger-http'
+  - '--trigger-topic=crabada-trigger'
   - '--region=us-east1'
-  - '--set-env-vars=ACTIVE=True,AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8'
-  - '--set-secrets=PRIVATE_KEY=new-exclusive-secret:1'
-  - '--service-account=stinky-crabs@crabada-automation.iam.gserviceaccount.com'
+  - '--set-env-vars=ACTIVE=$_IS_ACTIVE1,AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8,ADDRESS=$_ADDRESS1'
+  - '--set-secrets=PRIVATE_KEY=M1-private-key:1'
+  - '--service-account=m1-service-account@crabada-automation.iam.gserviceaccount.com'
 
 - name: 'gcr.io/cloud-builders/gcloud'
   waitFor: ['-']
@@ -19,18 +19,23 @@ steps:
   - 'beta'
   - 'functions'
   - 'deploy'
-  - '$_FUNCTION_NAME1'
+  - '$_FUNCTION_NAME2'
   - '--runtime=nodejs16'
   - '--entry-point=gameRunner'
-  - '--trigger-http'
+  - '--trigger-topic=crabada-trigger'
   - '--region=us-east1'
-  - '--set-env-vars=ACTIVE=True,AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8'
-  - '--set-secrets=PRIVATE_KEY=new-exclusive-secret:1'
-  - '--service-account=stinky-crabs@crabada-automation.iam.gserviceaccount.com'
-  
+  - '--set-env-vars=ACTIVE=$_IS_ACTIVE2,AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8,ADDRESS=$_ADDRESS2'
+  - '--set-secrets=PRIVATE_KEY=M2-private-key:1'
+  - '--service-account=m2-service-account@crabada-automation.iam.gserviceaccount.com'
+
 
 
 
 substitutions:
-  _FUNCTION_NAME: Crabada-mtest
-  _FUNCTION_NAME1: Crabada-mtest1
+  _FUNCTION_NAME1: Crabada-m1-2
+  _ADDRESS1: '0xF26DC84E3bC6F8C59663581fa6978C74496Efb15'
+  _IS_ACTIVE1: 'True'
+
+  _FUNCTION_NAME2: Crabada-m2-2
+  _ADDRESS2: '0x3583C1AB58e839328d17586caB5642f99a35B8c4'
+  _IS_ACTIVE2: 'True'
