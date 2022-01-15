@@ -9,7 +9,7 @@ steps:
   - '--entry-point=gameRunner'
   - '--trigger-http'
   - '--region=us-east1'
-  - '--set-env-vars=AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8,ACTIVE=True'
+  - '--set-env-vars=ACTIVE=True,AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8'
   - '--set-secrets=PRIVATE_KEY=new-exclusive-secret:1'
   - '--service-account=stinky-crabs@crabada-automation.iam.gserviceaccount.com'
 
@@ -24,6 +24,10 @@ steps:
   - '--entry-point=gameRunner'
   - '--trigger-http'
   - '--region=us-east1'
+  - '--set-env-vars=ACTIVE=True,AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8'
+  - '--set-secrets=PRIVATE_KEY=new-exclusive-secret:1'
+  - '--service-account=stinky-crabs@crabada-automation.iam.gserviceaccount.com'
+  
 
 
 
