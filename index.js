@@ -11,6 +11,16 @@ const logger = createLogger({
     format.timestamp({
       format: 'YYYY-MM-DD HH:mm:ss'
     }),
+    format((info, opts) => {
+      let level = info.level.toUpperCase();
+        if(level === 'VERBOSE') {
+          level = 'DEBUG';
+        }
+
+        info['severity'] = level;
+        delete info.level;
+        return info;
+    })(),
     format.errors({ stack: true }),
     format.splat(),
     format.json()),
