@@ -1,6 +1,7 @@
 steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
+  - 'beta'
   - 'functions'
   - 'deploy'
   - '$_FUNCTION_NAME'
@@ -14,6 +15,7 @@ steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   waitFor: ['-']
   args:
+  - 'beta'
   - 'functions'
   - 'deploy'
   - '$_FUNCTION_NAME1'
