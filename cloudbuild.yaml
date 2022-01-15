@@ -8,5 +8,6 @@ steps:
   - '--entry-point=gameRunner'
   - '--trigger-http'
 
+
 substitutions:
   _FUNCTION_NAME: Crabada-mtest
