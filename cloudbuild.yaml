@@ -4,7 +4,7 @@ steps:
   - 'functions'
   - 'deploy'
   - '$_FUNCTION_NAME'
-  - '--runtime=node'
+  - '--runtime=nodejs16'
   - '--entry-point=gameRunner'
   - '--trigger-http'
   - '--region=us-east1'
