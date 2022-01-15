@@ -1,5 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/gcloud'
+- id: 1
   args:
   - 'functions'
   - 'deploy'
@@ -8,9 +9,12 @@ steps:
   - '--entry-point=gameRunner'
   - '--trigger-http'
   - '--region=us-east1'
-  - '--set-env-vars=[AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8,ACTIVE=True]'
+  - '--set-env-vars=AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8,ACTIVE=True'
+  - '--set-secrets=PRIVATE_KEY=new-exclusive-secret:1'
 
 - name: 'gcr.io/cloud-builders/gcloud'
+- id: 2
+  waitFor: ['-']
   args:
   - 'functions'
   - 'deploy'
