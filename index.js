@@ -59,7 +59,7 @@ async function playGame(mine) {
   const gameState = mine['result']['process']
   let phase = gameState[gameState.length - 1]
   //console.log(gameState[gameState.length - 1]['action'])
-  console.log(phase['action'])
+  logger.info(`current phase: ${phase['action']}`)
   switch (phase['action']) {
     case 'create-game':
       //phaseLogger(gameState)
@@ -79,15 +79,13 @@ async function playGame(mine) {
       crabs = await chooseCrab(mine, crabsForHire)
       //crabs is now an ordered list of the best crabs instead of 1 crab
       if (await checkPriceAgainstLimit(crabs[0])) {
-        console.log(`${crabs[0]}dis one`)
-        console.log(crabs[0])
+        logger.info(`selecting the following crab ${crabs[0]}`)
         reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
+        .then(logger.notice("Team Reinforced"))
         break
       } else {
-        console.log("too expensive or other failure")
-        exit()
-        phaseLogger(gameState)
-        break
+        logger.warn("Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
+        process.exit(0)
       }
     case 'reinforce-defense': //means it's their turn, and I need to chill
       phaseLogger(gameState)
@@ -97,25 +95,26 @@ async function playGame(mine) {
       gameEnd = new Date(mine['result']['end_time'] * 1000)
       currentTime = new Date()
       timeUntilGameEnds = new Date(gameEnd - currentTime)
-      console.log(gameEnd)
-      console.log(currentTime)
-      console.log(timeUntilGameEnds)
+      //console.log(gameEnd)
+      //console.log(currentTime)
+      //console.log(timeUntilGameEnds)
 
       if (Math.sign(timeUntilGameEnds) ==1) {
-        console.log(`game still running until ${gameEnd}`)
+        logger.info(`game still running until ${gameEnd}`)
         //setTimeout(function() {
         //  console.log("Time's up! Game should be over now")
         //  endGame(mine['result']['game_id'])
       //}, timeUntilGameEnds);
       } else {
-        console.log(`Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
+        logger.info(`Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
         endGame(mine['result']['game_id'])
       }
 
       break
     case 'start':
-      console.log("Starting game...")
+      logger.info("Starting game...")
       startGame(mine['result']['team_id'])
+      .then(logger.notice("Game started"))
       break
   }
 }
@@ -123,16 +122,16 @@ async function playGame(mine) {
 
 async function gameRunner() {
   if (ACTIVE == 'False'){exit()}
-  console.log(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
+  logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
   game_info = await retrieveLatestGameInfo(ADDRESS)
-  console.log(game_info)
+  logger.info(game_info)
   if (game_info['game_id'] == 'NO_GAME') {
-    console.log(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
+    logger.info(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
     startGame(game_info['team_id'])
   } else {
     const mine = await getMineInfo(game_info)
     //console.log(`[Game-runner] Retrieved object for Mine ${latestGameID}:`)
-    console.log(`[Game-runner] ${JSON.stringify(mine)}`)
+    logger.info(`[Game-runner] ${JSON.stringify(mine)}`)
 
     //loop goes here?
     //console.log(`[Game-runner] ${game_id}`)
