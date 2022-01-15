@@ -8,8 +8,20 @@ steps:
   - '--entry-point=gameRunner'
   - '--trigger-http'
   - '--region=us-east1'
+  - '--set-env-vars=[AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8,ACTIVE=True]'
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - 'functions'
+  - 'deploy'
+  - '$_FUNCTION_NAME1'
+  - '--runtime=nodejs16'
+  - '--entry-point=gameRunner'
+  - '--trigger-http'
+  - '--region=us-east1'
 
 
 
 substitutions:
   _FUNCTION_NAME: Crabada-mtest
+  _FUNCTION_NAME1: Crabada-mtest1
