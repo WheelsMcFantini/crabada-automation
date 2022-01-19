@@ -28,7 +28,20 @@ steps:
   - '--set-secrets=PRIVATE_KEY=M2-private-key:1'
   - '--service-account=m2-service-account@crabada-automation.iam.gserviceaccount.com'
 
-
+- name: 'gcr.io/cloud-builders/gcloud'
+  waitFor: ['-']
+  args:
+  - 'beta'
+  - 'functions'
+  - 'deploy'
+  - '$_FUNCTION_NAME3'
+  - '--runtime=nodejs16'
+  - '--entry-point=gameRunner'
+  - '--trigger-topic=crabada-trigger'
+  - '--region=us-east1'
+  - '--set-env-vars=ACTIVE=$_IS_ACTIVE3,AVAX_API_URL=https://apis.ankr.com/5b37a5dac1384689904c16cd0374c42d/e64ba43f26d9c22442e49856540ca0ac/avax/archive/main,CRABADA_CONTRACT=0x82a85407bd612f52577909f4a58bfc6873f14da8,ADDRESS=$_ADDRESS3'
+  - '--set-secrets=PRIVATE_KEY=M3-private-key:1'
+  - '--service-account=m3-service-account@crabada-automation.iam.gserviceaccount.com'
 
 
 substitutions:
@@ -38,4 +51,8 @@ substitutions:
 
   _FUNCTION_NAME2: crabada-m2
   _ADDRESS2: '0x3583C1AB58e839328d17586caB5642f99a35B8c4'
+  _IS_ACTIVE2: 'True'
+
+  _FUNCTION_NAME2: crabada-m3
+  _ADDRESS2: '0x1A46d82a6df378e5383Fb2d1A591DE0899b329e6'
   _IS_ACTIVE2: 'True'
