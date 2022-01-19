@@ -5,7 +5,6 @@ const ADDRESS = process.env.ADDRESS
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
 const { format, createLogger, transports } = require('winston')
-const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 const loggingWinston = new LoggingWinston();
 
