@@ -6,7 +6,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
 const { format, createLogger, transports } = require('winston')
 
-const loggingWinston = new LoggingWinston();
+//const loggingWinston = new LoggingWinston();
 
 const logger = createLogger({
   format: format.combine(
@@ -27,8 +27,8 @@ const logger = createLogger({
     format.splat(),
     format.json()),
     transports: [
-    new transports.Console(),
-    loggingWinston
+    new transports.Console()
+    //loggingWinston
     //new transports.File({ filename: 'combined.log' })
   ]
 });
