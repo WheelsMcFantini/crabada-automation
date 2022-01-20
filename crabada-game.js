@@ -88,13 +88,14 @@ async function getMineInfo(mine_id) {
 async function getCrabsForHire() {
   const url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
   logger.info(`[Crabada-game] Retrieving mercenary info from Tavern`)
+
   try {
     const data = await fetch(url)
+    const tavern = await data.json()
+    return tavern['result']['data']
   } catch (error) {
     logger.error(error)
   }
-  const tavern = await data.json()
-  return tavern['result']['data']
 }
 
 async function chooseCrab(mine, listOfCrabsToHire){
