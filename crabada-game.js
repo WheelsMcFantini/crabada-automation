@@ -51,8 +51,10 @@ async function retrieveLatestGameInfo(address) {
   const url = `https://${IDLE_API}${USER_MINES_PATH}${address}${EXTRA_OPTS}`
   logger.info(`[Crabada-game] ${url}`)
   logger.info(`[Crabada-game] Retrieving latest game status for ${address}: ${url}`)
+  let data ={}
   try {
-    const data = await fetch(url)
+    data = await fetch(url)
+    logger.warning(data)
   } catch (error) {
     logger.error(error)
   }
@@ -76,11 +78,13 @@ async function getMineInfo(mine_id) {
   logger.info(`[Crabada-game] Retrieving mine object for Mine: ${mine_id}`)
   try {
     const data = await fetch(url)
+    logger.warning(data)
+    const mine = await data.json()
+    return mine
   } catch (error) {
     logger.error(error)
   }
-  const mine = await data.json()
-  return mine
+  
 }
 
 //might make sense to feed a type of sort in?
@@ -91,6 +95,7 @@ async function getCrabsForHire() {
 
   try {
     const data = await fetch(url)
+    logger.warning(data)
     const tavern = await data.json()
     return tavern['result']['data']
   } catch (error) {
