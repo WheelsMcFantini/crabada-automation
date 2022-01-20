@@ -51,7 +51,11 @@ async function retrieveLatestGameInfo(address) {
   const url = `https://${IDLE_API}${USER_MINES_PATH}${address}${EXTRA_OPTS}`
   logger.info(`[Crabada-game] ${url}`)
   logger.info(`[Crabada-game] Retrieving latest game status for ${address}: ${url}`)
-  const data = await fetch(url)
+  try {
+    const data = await fetch(url)
+  } catch (error) {
+    logger.error(error)
+  }
   const gameData = await data.json()
   if (gameData['result']['totalRecord'] == 0) {
     logger.http(`[Crabada-game] no game: ${JSON.stringify(gameData['result'])}`)
@@ -70,7 +74,11 @@ async function getMineInfo(mine_id) {
   
   const url = `https://${IDLE_API}${MINE_PATH}${mine_id}`
   logger.info(`[Crabada-game] Retrieving mine object for Mine: ${mine_id}`)
-  const data = await fetch(url)
+  try {
+    const data = await fetch(url)
+  } catch (error) {
+    logger.error(error)
+  }
   const mine = await data.json()
   return mine
 }
@@ -80,7 +88,11 @@ async function getMineInfo(mine_id) {
 async function getCrabsForHire() {
   const url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
   logger.info(`[Crabada-game] Retrieving mercenary info from Tavern`)
-  const data = await fetch(url)
+  try {
+    const data = await fetch(url)
+  } catch (error) {
+    logger.error(error)
+  }
   const tavern = await data.json()
   return tavern['result']['data']
 }
