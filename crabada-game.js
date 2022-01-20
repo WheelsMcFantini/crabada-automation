@@ -17,9 +17,9 @@ const Web3 = require('web3');
 const { Console } = require('console')
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
-const {LoggingWinston} = require('@google-cloud/logging-winston');
+//const {LoggingWinston} = require('@google-cloud/logging-winston');
 
-const loggingWinston = new LoggingWinston();
+//const loggingWinston = new LoggingWinston();
 
 const logger = createLogger({
   format: format.combine(
@@ -41,7 +41,7 @@ const logger = createLogger({
     format.json()),
     transports: [
     new transports.Console(),
-    loggingWinston
+    //loggingWinston
     //new transports.File({ filename: 'combined.log' })
   ]
 });
