@@ -54,7 +54,7 @@ async function retrieveLatestGameInfo(address) {
   let data ={}
   try {
     data = await fetch(url)
-    logger.warning(data)
+    logger.info(data)
   } catch (error) {
     logger.error(error)
   }
@@ -78,7 +78,7 @@ async function getMineInfo(mine_id) {
   logger.info(`[Crabada-game] Retrieving mine object for Mine: ${mine_id}`)
   try {
     const data = await fetch(url)
-    logger.warning(data)
+    logger.info(data)
     const mine = await data.json()
     return mine
   } catch (error) {
@@ -95,7 +95,7 @@ async function getCrabsForHire() {
 
   try {
     const data = await fetch(url)
-    logger.warning(data)
+    logger.info(data)
     const tavern = await data.json()
     return tavern['result']['data']
   } catch (error) {
