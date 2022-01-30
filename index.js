@@ -1,34 +1,21 @@
 const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, getCurrentStage, chooseCrab } = require('./crabada-game.js')
 const { startGame, reinforceTeam, endGame, checkPriceAgainstLimit } = require('./crabada-tx.js')
-require('dotenv').config();
+//require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
 const { format, createLogger, transports } = require('winston')
-
-//const loggingWinston = new LoggingWinston();
 
 const logger = createLogger({
   format: format.combine(
     format.timestamp({
       format: 'YYYY-MM-DD HH:mm:ss'
     }),
-    format((info, opts) => {
-      let level = info.level.toUpperCase();
-        if(level === 'VERBOSE') {
-          level = 'DEBUG';
-        }
-
-        info['severity'] = level;
-        delete info.level;
-        return info;
-    })(),
     format.errors({ stack: true }),
     format.splat(),
     format.json()),
     transports: [
-    new transports.Console()
-    //loggingWinston
+    new transports.Console(),
     //new transports.File({ filename: 'combined.log' })
   ]
 });
@@ -153,4 +140,3 @@ async function gameRunner() {
 }
 
 module.exports = {gameRunner, playGame, phaseLogger}
-gameRunner()
