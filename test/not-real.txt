@@ -1,0 +1,16 @@
+const assert = require('chai').assert
+const sinon = require('sinon');
+
+describe('index.js functions', function () {
+    describe('gameRunner', function () {
+    //either runs startGame or playGame
+         
+
+    })
+    describe('playGame', function () {
+        //does it all! create-game, attack, reinforce-attack, reinforce-defense, settle
+        //might need to use a spy?
+    
+    
+        })
+})

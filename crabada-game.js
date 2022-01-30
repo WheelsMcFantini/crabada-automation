@@ -174,4 +174,4 @@ function getBPMod(mine) {
 
 
 
-module.exports = { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, chooseCrab }
+module.exports = { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, chooseCrab, calculateMR }

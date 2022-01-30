@@ -1,6 +1,6 @@
 const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, getCurrentStage, chooseCrab } = require('./crabada-game.js')
 const { startGame, reinforceTeam, endGame, checkPriceAgainstLimit } = require('./crabada-tx.js')
-//require('dotenv').config();
+require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
@@ -153,4 +153,4 @@ async function gameRunner() {
 }
 
 module.exports = {gameRunner, playGame, phaseLogger}
-//gameRunner()
+gameRunner()
