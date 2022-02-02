@@ -102,16 +102,17 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
 
-    web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
+    return signedTx
+}
+
+async function sendTx(signedTransaction){
+    web3.eth.sendSignedTransaction(signedTransaction.rawTransaction, function (error, hash) {
         if (!error) {
             logger.http("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
             logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
     })
-    .catch((error) => {
-        logger.error(`[Crabada-transaction] ${error}`);
-      });
 }
 
 async function endGame(gameId) {
