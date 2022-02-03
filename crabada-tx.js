@@ -178,4 +178,4 @@ async function checkPriceAgainstLimit(crab){
 }
 
 
-module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit}
+module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendTx}

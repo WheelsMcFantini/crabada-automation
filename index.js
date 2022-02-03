@@ -1,5 +1,5 @@
-const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, getCurrentStage, chooseCrab } = require('./crabada-game.js')
-const { startGame, reinforceTeam, endGame, checkPriceAgainstLimit } = require('./crabada-tx.js')
+const { retrieveLatestGameInfo, getMineInfo, getCurrentStage, reinforcementWrapper } = require('./crabada-game.js')
+const { startGame, endGame } = require('./crabada-tx.js')
 //require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const PRIVATE_KEY = process.env.PRIVATE_KEY
@@ -74,8 +74,9 @@ async function playGame(mine) {
         break
       }
       phaseLogger(gameState)
+      reinforcementWrapper(mine)
       //idk, when this phase or attack is the most recent, I think I need to reinforce
-      crabsForHire = await getCrabsForHire()
+      /* crabsForHire = await getCrabsForHire()
       crabs = await chooseCrab(mine, crabsForHire)
       //crabs is now an ordered list of the best crabs instead of 1 crab
       if (await checkPriceAgainstLimit(crabs[0])) {
@@ -86,7 +87,8 @@ async function playGame(mine) {
       } else {
         logger.warn("[Game-runner] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
         process.exit(0)
-      }
+      } */
+      
     case 'reinforce-defense': //means it's their turn, and I need to chill
       phaseLogger(gameState)
       break
