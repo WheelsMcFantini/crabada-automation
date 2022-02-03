@@ -1,6 +1,6 @@
 const { retrieveLatestGameInfo, getMineInfo, getCurrentStage, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame } = require('./crabada-tx.js')
-//require('dotenv').config();
+require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
@@ -75,6 +75,7 @@ async function playGame(mine) {
       }
       phaseLogger(gameState)
       reinforcementWrapper(mine)
+      break
       //idk, when this phase or attack is the most recent, I think I need to reinforce
       /* crabsForHire = await getCrabsForHire()
       crabs = await chooseCrab(mine, crabsForHire)
@@ -138,7 +139,8 @@ async function gameRunner() {
     //loop goes here?
     //console.log(`[Game-runner] ${game_id}`)
     playGame(mine)
+    logger.info(`[Game-runner] closing down...`)
   }
 }
-
+gameRunner()
 module.exports = {gameRunner, playGame, phaseLogger}

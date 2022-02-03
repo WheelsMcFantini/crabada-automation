@@ -2,7 +2,7 @@ const { privateDecrypt } = require('crypto')
 const https = require('https')
 const fetch = require('node-fetch')
 const { exit } = require('process')
-const { startGame, sendTx } = require('./crabada-tx.js')
+const { startGame, sendReinforceTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
 IDLE_API = 'idle-api.crabada.com'
 USER_MINES_PATH = '/public/idle/mines?user_address='
 MINE_PATH = '/public/idle/mine/'
@@ -141,10 +141,10 @@ async function calculateMR(mine, crab) {
   potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
   difference = potentialMinersRevengeChance - currentMinersRevengeChance
 
-  logger.info(`[Crabada-game] Current MR chance is ${currentMinersRevengeChance}%, potential MR chance with crab-${crab['id']} becomes ${potentialMinersRevengeChance}, a difference of ${difference}`)
+  //logger.info(`[Crabada-game] Current MR chance is ${currentMinersRevengeChance}%, potential MR chance with crab-${crab['id']} becomes ${potentialMinersRevengeChance}, a difference of ${difference}`)
   const bn = await web3.utils.toBN(crab['price'])
   numTus = await web3.utils.fromWei(bn, 'Ether')
-  logger.info(`[Crabada-game] With a price of ${numTus} TUS and a bonus of ${difference}, this crab gets you ${difference / numTus} MR chance per TUS`)
+  //logger.info(`[Crabada-game] With a price of ${numTus} TUS and a bonus of ${difference}, this crab gets you ${difference / numTus} MR chance per TUS`)
   return { 'id': crab['id'], 'price': crab['price'], 'value': difference / numTus }
 }
 
@@ -156,7 +156,7 @@ function getMPMod(crabList) {
     //console.log(crabList[crab])
     mp = crabList[crab]['critical'] + crabList[crab]['speed']
     total += mp
-    console.log(total)
+    //console.log(total)
   }
   //console.log(`total mp:${total}`)
 
@@ -180,14 +180,8 @@ async function reinforcementWrapper(mine) {
   if (await checkPriceAgainstLimit(crabs[0])) {
     logger.info(`[Crabada-game] selecting the following crab ${crabs[0]}`)
     signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
-    sendTx(signedReinforcement)
-      .once('transactionHash', logger.http("[Crabada-game] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!"))
-      .on('confirmation', logger.http("[Crabada-game] Team Reinforced"))
-      .on('error', function(error){
-        //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-        logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)
-      })
-    break
+    receipt = await sendReinforceTx(signedReinforcement)
+    return receipt
   } else {
     logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
     process.exit(0)
