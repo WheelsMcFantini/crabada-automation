@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 const assert = require('chai').assert
 const nock = require('nock')
-const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, calculateMR } = require("../crabada-game.js")
+const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, calculateMR } = require("../src/crabada-game.js")
 
 
 
