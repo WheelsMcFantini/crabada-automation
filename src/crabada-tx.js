@@ -12,7 +12,11 @@ const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
-//
+const statusEnum = Object.freeze({
+    SUCCESS: 0,
+    FAIL: 1,
+    CRAB_LOCKED: 2
+  })
 
 //const loggingWinston = new LoggingWinston();
 
@@ -132,13 +136,21 @@ async function sendTx(signedTransaction){
     const sendTxResult = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
         .on('transactionHash', function(hash){logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`)})
         .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${receipt}`)})
-       // .on('confirmation', function(confirmation){logger.info("[Crabada-game] Team Reinforced")})
+        .on('confirmation', function(confirmation){
+            logger.info("[Crabada-game] Team Reinforced")
+            return statusEnum.SUCCESS
+        })
         .on('error', function(error){
         //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-        logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)})
+        logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)
+        if (error == "Error CRAB LOCKED") {
+            return statusEnum.CRAB_LOCKED
+        } else {
+            return statusEnum.FAIL
+        }
+        })
         //resolves here
         .then(console.log("End TX code"))
-       return sendTxResult
 }
 
 async function endGame(gameId) {
@@ -202,4 +214,4 @@ async function checkPriceAgainstLimit(crab){
 }
 
 
-module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendTx}
+module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendTx, statusEnum}

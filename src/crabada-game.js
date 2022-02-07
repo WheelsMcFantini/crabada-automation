@@ -1,6 +1,6 @@
 /*eslint-env node, mocha */
 const fetch = require('node-fetch')
-const { sendTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
+const { sendTx, checkPriceAgainstLimit, reinforceTeam, statusEnum} = require('./crabada-tx.js')
 const IDLE_API = 'idle-api.crabada.com'
 const USER_MINES_PATH = '/public/idle/mines?user_address='
 const MINE_PATH = '/public/idle/mine/'
@@ -175,8 +175,15 @@ async function reinforcementWrapper(mine) {
   if (await checkPriceAgainstLimit(crabs[0])) {
       logger.info(`[Crabada-game] selecting the following crab ${crabs[0]}`);
       const signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price']);
-      const receipt = await sendTx(signedReinforcement);
-      logger.info(receipt)
+      const status = await sendTx(signedReinforcement);
+      logger.info(status)
+      if (status == statusEnum.SUCCESS){
+        logger.info("TX success")
+      }else if (status == statusEnum.FAIL){
+        logger.info("TX fail")
+      } else if (status == statusEnum.CRAB_LOCKED){
+        logger.info("Crab locked")
+      }
   } else {
       logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.");
       process.exit(0);
