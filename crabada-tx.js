@@ -10,7 +10,7 @@ const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
-const {reinforcementWrapper} = require('./crabada-game.js')
+const { reinforcementWrapper } = require("./reinforcementWrapper");
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 //const loggingWinston = new LoggingWinston();
@@ -28,6 +28,7 @@ const logger = createLogger({
     //new transports.File({ filename: 'combined.log' })
   ]
 });
+exports.logger = logger;
 
 //HEX Helper
 function convertNumberToPaddedHex(number){

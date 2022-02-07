@@ -1,6 +1,6 @@
 /*eslint-env node, mocha */
 const fetch = require('node-fetch')
-const { sendReinforceTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
+//const { sendReinforceTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
 const IDLE_API = 'idle-api.crabada.com'
 const USER_MINES_PATH = '/public/idle/mines?user_address='
 const MINE_PATH = '/public/idle/mine/'
@@ -11,6 +11,7 @@ const AVAX_API_URL = process.env.AVAX_API_URL
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
+const { reinforcementWrapper } = require("./reinforcementWrapper");
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 
@@ -167,20 +168,7 @@ function getBPMod(mine) {
   return bpMod
 }
 
-async function reinforcementWrapper(mine) {
-  const crabsForHire = await getCrabsForHire()
-  const crabs = await chooseCrab(mine, crabsForHire)
-  //crabs is now an ordered list of the best crabs instead of 1 crab
-  if (await checkPriceAgainstLimit(crabs[0])) {
-    logger.info(`[Crabada-game] selecting the following crab ${crabs[0]}`)
-    const signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
-    const receipt = await sendReinforceTx(signedReinforcement, mine)
-    return receipt
-  } else {
-    logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
-    process.exit(0)
-  }
-}
+
 /* web3.eth.sendTransaction({from: '0x123...', data: '0x432...'})
 .once('sending', function(payload){ ... })
 .once('sent', function(payload){ ... })
