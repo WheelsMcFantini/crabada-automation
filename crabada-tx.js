@@ -1,4 +1,5 @@
-/*eslint-env node */
+/*eslint-env node, mocha*/
+
 //Contains each AVAX transaction needed for gameplay plus helper methods
 require('dotenv').config();
 //const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
@@ -9,6 +10,7 @@ const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
+const {reinforcementWrapper} = require('./crabada-game.js')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 //const loggingWinston = new LoggingWinston();
@@ -51,7 +53,7 @@ async function startGame(teamId) {
 
     const transaction = {
         'to': CRABADA_CONTRACT,
-        'gas': 318963, //gasEstimate, //
+        'gas': gasEstimate,
         'maxPriorityFeePerGas': 1000000000,
         'nonce': nonce,
         // optional data field to send message or execute smart contract
@@ -107,7 +109,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 }
 
 async function sendReinforceTx(signedTransaction, mine){
-    test = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+    const sendTxResult = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
         .on('transactionHash', function(hash){logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`)})
         .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${receipt}`)})
        // .on('confirmation', function(confirmation){logger.info("[Crabada-game] Team Reinforced")})
@@ -121,7 +123,7 @@ async function sendReinforceTx(signedTransaction, mine){
         })
         //resolves here
         .then(console.log("End TX code"))
-       
+       return sendTxResult
 }
 
 async function endGame(gameId) {
@@ -135,8 +137,6 @@ async function endGame(gameId) {
     0x2d6ef310000000000000000000000000000000000000000000000000000000000003f870
     */
 
-    const param1 = convertNumberToPaddedHex(gameId)
-    //console.log(param1)
 
     const closeGameData = `0x2d6ef310${convertNumberToPaddedHex(gameId)}`
     //console.log(closeGameData)

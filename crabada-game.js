@@ -1,19 +1,18 @@
-/*eslint-env node */
+/*eslint-env node, mocha */
 const fetch = require('node-fetch')
 const { sendReinforceTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
-IDLE_API = 'idle-api.crabada.com'
-USER_MINES_PATH = '/public/idle/mines?user_address='
-MINE_PATH = '/public/idle/mine/'
-TEAM_PATH = '/public/idle/teams?user_address='
-EXTRA_OPTS = '&page=1&status=open&limit=8'
-NO_GAME_OPTS = '&page=1&limit=8'
+const IDLE_API = 'idle-api.crabada.com'
+const USER_MINES_PATH = '/public/idle/mines?user_address='
+const MINE_PATH = '/public/idle/mine/'
+const TEAM_PATH = '/public/idle/teams?user_address='
+const EXTRA_OPTS = '&page=1&status=open&limit=8'
+const NO_GAME_OPTS = '&page=1&limit=8'
 const AVAX_API_URL = process.env.AVAX_API_URL
 const Web3 = require('web3');
-const { Console } = require('console')
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
-const { on } = require('events')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
+
 
 //const loggingWinston = new LoggingWinston();
 
@@ -22,7 +21,7 @@ const logger = createLogger({
     format.timestamp({
       format: 'YYYY-MM-DD HH:mm:ss'
     }),
-    format((info, opts) => {
+    format((info) => {
       let level = info.level.toUpperCase();
       if (level === 'VERBOSE') {
         level = 'DEBUG';
@@ -100,10 +99,10 @@ async function getCrabsForHire() {
 }
 
 async function chooseCrab(mine, listOfCrabsToHire) {
-  bestCrabs = []
-  for (i in listOfCrabsToHire) {
+  let bestCrabs = []
+  for (let i in listOfCrabsToHire) {
     //console.log(listOfCrabsToHire[i])
-    crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
+    const crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
     //if positive, add to best crabs, otherwise, next.
     if (Math.sign(crabMeta['value']) == 1) {
       bestCrabs.push(crabMeta)
@@ -120,11 +119,11 @@ async function chooseCrab(mine, listOfCrabsToHire) {
 async function calculateMR(mine, crab) {
   //First I Want to enumerate all the Crabs MP and figure out the modifier
   const BASE_CHANCE = 7.0
-  let crabList = [...mine['result']['defense_team_info']]
+  const crabList = [...mine['result']['defense_team_info']]
 
-  mpMod = getMPMod(crabList)
-  bpMod = getBPMod(mine)
-  currentMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
+  let mpMod = getMPMod(crabList)
+  let bpMod = getBPMod(mine)
+  const currentMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
 
   //add potential crab to the team for calculations
   crabList.push(crab)
@@ -133,23 +132,23 @@ async function calculateMR(mine, crab) {
 
   bpMod = getBPMod(mine)
 
-  potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
-  difference = potentialMinersRevengeChance - currentMinersRevengeChance
+  const potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
+  const difference = potentialMinersRevengeChance - currentMinersRevengeChance
 
   //logger.info(`[Crabada-game] Current MR chance is ${currentMinersRevengeChance}%, potential MR chance with crab-${crab['id']} becomes ${potentialMinersRevengeChance}, a difference of ${difference}`)
   const bn = await web3.utils.toBN(crab['price'])
-  numTus = await web3.utils.fromWei(bn, 'Ether')
+  const numTus = await web3.utils.fromWei(bn, 'Ether')
   //logger.info(`[Crabada-game] With a price of ${numTus} TUS and a bonus of ${difference}, this crab gets you ${difference / numTus} MR chance per TUS`)
   return { 'id': crab['id'], 'price': crab['price'], 'value': difference / numTus }
 }
 
 //Takes a list of crabs as input and calculates the MP mod for Miners revenge
 function getMPMod(crabList) {
-  total = 0
+  let total = 0
   //console.log(crabList)
-  for (crab in crabList) {
+  for (let crab in crabList) {
     //console.log(crabList[crab])
-    mp = crabList[crab]['critical'] + crabList[crab]['speed']
+    let mp = crabList[crab]['critical'] + crabList[crab]['speed']
     total += mp
     //console.log(total)
   }
@@ -163,19 +162,19 @@ function getMPMod(crabList) {
 function getBPMod(mine) {
   //messes up if defense points are higher than attack
   let { defense_point, attack_point } = mine['result']
-  delta = attack_point - defense_point
-  bpMod = 20 / Math.sqrt(delta)
+  let delta = attack_point - defense_point
+  let bpMod = 20 / Math.sqrt(delta)
   return bpMod
 }
 
 async function reinforcementWrapper(mine) {
-  crabsForHire = await getCrabsForHire()
-  crabs = await chooseCrab(mine, crabsForHire)
+  const crabsForHire = await getCrabsForHire()
+  const crabs = await chooseCrab(mine, crabsForHire)
   //crabs is now an ordered list of the best crabs instead of 1 crab
   if (await checkPriceAgainstLimit(crabs[0])) {
     logger.info(`[Crabada-game] selecting the following crab ${crabs[0]}`)
-    signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
-    receipt = await sendReinforceTx(signedReinforcement, mine)
+    const signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
+    const receipt = await sendReinforceTx(signedReinforcement, mine)
     return receipt
   } else {
     logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")

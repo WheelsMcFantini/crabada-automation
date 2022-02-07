@@ -1,11 +1,12 @@
 /*eslint-env node, mocha */
+/* eslint-disable no-unused-vars */
 const assert = require('chai').assert
 const nock = require('nock')
-const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, calculateMR, chooseCrab} = require('../crabada-game.js')
+const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, calculateMR } = require("../crabada-game.js")
 
 
 
-ADDRESS = "0xF26DC84E3bC6F8C59663581fa6978C74496Efb15"
+const ADDRESS = "0xF26DC84E3bC6F8C59663581fa6978C74496Efb15"
 
 
 describe('game functions', function () {
@@ -27,8 +28,8 @@ describe('game functions', function () {
 
             it('no_game should have two keys', async () => {
 
-                result = await retrieveLatestGameInfo(ADDRESS)
-                expectedKeys = ['game_id', 'team_id']
+                const result = await retrieveLatestGameInfo(ADDRESS)
+                const expectedKeys = ['game_id', 'team_id']
                 assert.hasAllKeys(result, expectedKeys)
             })
 
@@ -50,7 +51,7 @@ describe('game functions', function () {
         ),
             it('Mineobject should posess mine keys', async () => {
                 const result = await getMineInfo(762113)
-                expectedKeys = ['error_code', 'message', 'result']
+                const expectedKeys = ['error_code', 'message', 'result']
                 assert.hasAllKeys(result, expectedKeys)
             }
             )
@@ -73,7 +74,7 @@ describe('game functions', function () {
         const crab = {"crabada_id":10787,"id":10787,"price":28900000000000000000,"crabada_name":"Crabada 10787","lender":"0x1fafef2c8d8cf8e9a2e6ec8558c280b7b5812678","is_being_borrowed":0,"borrower":"0x261899ebc5300321c2fa9c88633bea620bd5a68c","game_id":762800,"crabada_type":1,"crabada_class":5,"class_id":5,"class_name":"CRABOID","is_origin":0,"is_genesis":0,"legend_number":0,"pure_number":6,"photo":"10787.png","hp":127,"speed":31,"damage":67,"critical":51,"armor":26,"battle_point":220,"time_point":82,"mine_point":82}
         it('calculateMR should return an rentable crab data object consisting of the crabs id, price in TUS and the value rating', async () => {
             const result = await calculateMR(mine, crab)
-            expectedKeys = ['id', 'price', 'value']
+            const expectedKeys = ['id', 'price', 'value']
             assert.hasAllKeys(result, expectedKeys)
         }
         )

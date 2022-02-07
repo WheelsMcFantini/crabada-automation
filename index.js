@@ -1,9 +1,8 @@
-/*eslint-env node */
-const { retrieveLatestGameInfo, getMineInfo, getCurrentStage, reinforcementWrapper } = require('./crabada-game.js')
+/*eslint-env node, mocha */
+const { retrieveLatestGameInfo, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame } = require('./crabada-tx.js')
 require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
-const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
 const { format, createLogger, transports } = require('winston')
 
@@ -25,7 +24,7 @@ const logger = createLogger({
 
 function phaseLogger(gameState) {
   let phase = gameState[gameState.length - 1]
-  txTime = new Date(phase['transaction_time'] * 1000)
+  const txTime = new Date(phase['transaction_time'] * 1000)
   switch (phase['action']) {
     case 'create-game':
       console.log(`[Game-Runner] Displayed Phase: Start`)
@@ -62,12 +61,12 @@ async function playGame(mine) {
   //console.log(gameState[gameState.length - 1]['action'])
   logger.info(`[Game-runner] current phase: ${phase['action']}`)
   switch (phase['action']) {
-    case 'create-game':
+    case 'create-game': {
       //phaseLogger(gameState)
       //wait for opponent to go
-      break;
+      break; }
     case 'attack': //means they have just attacked me
-    case 'reinforce-attack': //means they have just reinforced their attack
+    case 'reinforce-attack': {//means they have just reinforced their attack
       if (gameState.length > 4){
         //console.log("no need to reinforce a third time, wait for settle")
         logger.info("[Game-runner] no need to reinforce a third time, wait for settle")
@@ -90,15 +89,16 @@ async function playGame(mine) {
         logger.warn("[Game-runner] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
         process.exit(0)
       } */
-      
-    case 'reinforce-defense': //means it's their turn, and I need to chill
+    }
+    case 'reinforce-defense':{ //means it's their turn, and I need to chill
       phaseLogger(gameState)
-      break
-    case 'settle':
+      break 
+    }
+    case 'settle': {
       phaseLogger(gameState)
-      gameEnd = new Date(mine['result']['end_time'] * 1000)
-      currentTime = new Date()
-      timeUntilGameEnds = new Date(gameEnd - currentTime)
+      const gameEnd = new Date(mine['result']['end_time'] * 1000)
+      const currentTime = new Date()
+      const timeUntilGameEnds = new Date(gameEnd - currentTime)
       //console.log(gameEnd)
       //console.log(currentTime)
       //console.log(timeUntilGameEnds)
@@ -115,11 +115,13 @@ async function playGame(mine) {
       }
 
       break
-    case 'start':
+    }
+    case 'start': {
       logger.info("[Game-runner] Starting game...")
       startGame(mine['result']['team_id'])
       .then(logger.http("[Game-runner] Game started"))
       break
+    }
   }
 }
 
@@ -127,7 +129,7 @@ async function playGame(mine) {
 async function gameRunner() {
   if (ACTIVE == 'False'){process.exit(0)}
   logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
-  game_info = await retrieveLatestGameInfo(ADDRESS)
+  const game_info = await retrieveLatestGameInfo(ADDRESS)
   logger.info(game_info)
   if (game_info['game_id'] == 'NO_GAME') {
     logger.info(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
