@@ -1,5 +1,5 @@
 /*eslint-env node, mocha*/
-
+/* eslint-disable no-unused-vars */
 //Contains each AVAX transaction needed for gameplay plus helper methods
 require('dotenv').config();
 //const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
@@ -10,8 +10,9 @@ const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
-const { reinforcementWrapper } = require("./reinforcementWrapper");
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
+
+//
 
 //const loggingWinston = new LoggingWinston();
 
@@ -109,19 +110,32 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
     return signedTx
 }
 
-async function sendReinforceTx(signedTransaction, mine){
+async function createTransaction(transactionPayload){
+    const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
+    const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': transactionPayload, 'nonce': nonce})
+
+    const transaction = {
+        'to': CRABADA_CONTRACT,
+        'gas': gasEstimate, //320000
+        'maxPriorityFeePerGas': 1000000000,
+        'nonce': nonce,
+        // optional data field to send message or execute smart contract
+        'data': transactionPayload
+    };
+
+    const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
+
+    return signedTx
+}
+
+async function sendTx(signedTransaction){
     const sendTxResult = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
         .on('transactionHash', function(hash){logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`)})
         .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${receipt}`)})
        // .on('confirmation', function(confirmation){logger.info("[Crabada-game] Team Reinforced")})
         .on('error', function(error){
         //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-        logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)
-        if (error == "Returned error: execution reverted: GAME:CRAB LOCKED"){
-            //re-run the wrapper
-            reinforcementWrapper(mine)
-        }
-        })
+        logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)})
         //resolves here
         .then(console.log("End TX code"))
        return sendTxResult
@@ -188,4 +202,4 @@ async function checkPriceAgainstLimit(crab){
 }
 
 
-module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendReinforceTx}
+module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendTx}
