@@ -1,3 +1,4 @@
+/*eslint-env node, mocha */
 const assert = require('chai').assert
 const nock = require('nock')
 const { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, calculateMR, chooseCrab} = require('../crabada-game.js')

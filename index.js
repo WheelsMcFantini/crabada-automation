@@ -1,3 +1,4 @@
+/*eslint-env node */
 const { retrieveLatestGameInfo, getMineInfo, getCurrentStage, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame } = require('./crabada-tx.js')
 require('dotenv').config();

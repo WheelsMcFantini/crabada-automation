@@ -1,0 +1,12 @@
+.gitignore
+.env
+yarn.lock
+node_modules
+crabada.log
+crabada-runner.sh
+playground.js
+combined.log
+scratchspace.js
+*.log
+.eslintrc.js
+.prettierignore

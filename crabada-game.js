@@ -1,8 +1,6 @@
-const { privateDecrypt } = require('crypto')
-const https = require('https')
+/*eslint-env node */
 const fetch = require('node-fetch')
-const { exit } = require('process')
-const { startGame, sendReinforceTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
+const { sendReinforceTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
 IDLE_API = 'idle-api.crabada.com'
 USER_MINES_PATH = '/public/idle/mines?user_address='
 MINE_PATH = '/public/idle/mine/'
@@ -10,9 +8,6 @@ TEAM_PATH = '/public/idle/teams?user_address='
 EXTRA_OPTS = '&page=1&status=open&limit=8'
 NO_GAME_OPTS = '&page=1&limit=8'
 const AVAX_API_URL = process.env.AVAX_API_URL
-const PRIVATE_KEY = process.env.PRIVATE_KEY
-const ADDRESS = process.env.ADDRESS
-const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
 const Web3 = require('web3');
 const { Console } = require('console')
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));

@@ -1,3 +1,4 @@
+/*eslint-env node */
 //Contains each AVAX transaction needed for gameplay plus helper methods
 require('dotenv').config();
 //const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
@@ -118,6 +119,7 @@ async function sendReinforceTx(signedTransaction, mine){
             reinforcementWrapper(mine)
         }
         })
+        //resolves here
         .then(console.log("End TX code"))
        
 }
