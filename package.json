@@ -20,11 +20,16 @@
   },
   "devDependencies": {
     "husky": "^7.0.4",
+    "lint-staged": "^12.3.3",
     "nock": "^13.2.2"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn test"   
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "lint:js": "eslint . --ext .js",
+    "lint:js:fix": "npm run lint:js -- --fix"
   }
 }
