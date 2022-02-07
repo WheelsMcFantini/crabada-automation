@@ -33,7 +33,7 @@
     }
   },
   "lint-staged": {
-    "lint:js": "eslint . --ext .js",
+    "*.js": "eslint",
     "lint:js:fix": "npm run lint:js -- --fix"
   }
 }
