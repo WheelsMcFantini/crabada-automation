@@ -50,7 +50,7 @@ async function startGame(teamId) {
 
     const transaction = {
         'to': CRABADA_CONTRACT,
-        'gas': gasEstimate, //318963
+        'gas': 318963, //gasEstimate, //
         'maxPriorityFeePerGas': 1000000000,
         'nonce': nonce,
         // optional data field to send message or execute smart contract
@@ -61,9 +61,9 @@ async function startGame(teamId) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.http("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.info("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
-            logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
+            logger.info("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
     });
 }
@@ -105,20 +105,21 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
     return signedTx
 }
 
-async function sendReinforceTx(signedTransaction){
-    web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
-        .on('sending', function(payload){logger.http("[Crabada-game] sending tx...") })
-        .on('sent', function(payload){ logger.http("[Crabada-game] Tx sent")  })
-        .on('transactionHash', function(hash){logger.http("[Crabada-game] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!")})
-        .on('receipt', function(receipt){ logger.http(`[Crabada-game] Got reciept ${receipt}`)})
-        .on('confirmation', function(confirmation){logger.http("[Crabada-game] Team Reinforced")})
+async function sendReinforceTx(signedTransaction, mine){
+    test = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+        .on('transactionHash', function(hash){logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`)})
+        .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${receipt}`)})
+       // .on('confirmation', function(confirmation){logger.info("[Crabada-game] Team Reinforced")})
         .on('error', function(error){
         //examine the error object, to try and get to see if the crab was locked. If so, go again. 
         logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)
+        if (error == "Returned error: execution reverted: GAME:CRAB LOCKED"){
+            //re-run the wrapper
+            reinforcementWrapper(mine)
+        }
         })
-        .then(function(receipt){
-            return receipt
-           });
+        .then(console.log("End TX code"))
+       
 }
 
 async function endGame(gameId) {
@@ -158,9 +159,9 @@ async function endGame(gameId) {
 
     web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.http("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.info("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
-            logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
+            logger.info("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
     });
 }
@@ -177,8 +178,8 @@ async function checkPriceAgainstLimit(crab){
         logger.info("[Crabada-transaction] renting crab?")
         return true
     } else {
-        logger.warn(`[Crabada-transaction] ${bn} is greater than ${priceCap}`)
-        logger.warn("[Crabada-transaction] Crabs too expensive! Try again later")
+        logger.info(`[Crabada-transaction] ${bn} is greater than ${priceCap}`)
+        logger.info("[Crabada-transaction] Crabs too expensive! Try again later")
         return false
     }
 }

@@ -180,7 +180,7 @@ async function reinforcementWrapper(mine) {
   if (await checkPriceAgainstLimit(crabs[0])) {
     logger.info(`[Crabada-game] selecting the following crab ${crabs[0]}`)
     signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
-    receipt = await sendReinforceTx(signedReinforcement)
+    receipt = await sendReinforceTx(signedReinforcement, mine)
     return receipt
   } else {
     logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")

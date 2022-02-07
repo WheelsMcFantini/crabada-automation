@@ -19,6 +19,12 @@
     "test": "mocha || true"
   },
   "devDependencies": {
+    "husky": "^7.0.4",
     "nock": "^13.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "CI=true yarn test"   
+    }
   }
 }
