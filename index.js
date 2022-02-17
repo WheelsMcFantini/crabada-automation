@@ -1,6 +1,6 @@
 const { retrieveLatestGameInfo, getMineInfo, getCurrentStage, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame } = require('./crabada-tx.js')
-require('dotenv').config();
+//require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
@@ -142,5 +142,5 @@ async function gameRunner() {
     logger.info(`[Game-runner] closing down...`)
   }
 }
-gameRunner()
+//gameRunner()
 module.exports = {gameRunner, playGame, phaseLogger}
