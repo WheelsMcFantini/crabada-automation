@@ -1,5 +1,5 @@
 //Contains each AVAX transaction needed for gameplay plus helper methods
-//require('dotenv').config();
+require('dotenv').config();
 //const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
 const AVAX_API_URL = process.env.AVAX_API_URL
 const PRIVATE_KEY = process.env.PRIVATE_KEY
@@ -102,16 +102,23 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
 
-    web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
-        if (!error) {
-            logger.http("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
-        } else {
-            logger.error("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
-        }
-    })
-    .catch((error) => {
-        logger.error(`[Crabada-transaction] ${error}`);
-      });
+    return signedTx
+}
+
+async function sendReinforceTx(signedTransaction){
+    web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
+        .on('sending', function(payload){logger.http("[Crabada-game] sending tx...") })
+        .on('sent', function(payload){ logger.http("[Crabada-game] Tx sent")  })
+        .on('transactionHash', function(hash){logger.http("[Crabada-game] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!")})
+        .on('receipt', function(receipt){ logger.http(`[Crabada-game] Got reciept ${receipt}`)})
+        .on('confirmation', function(confirmation){logger.http("[Crabada-game] Team Reinforced")})
+        .on('error', function(error){
+        //examine the error object, to try and get to see if the crab was locked. If so, go again. 
+        logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)
+        })
+        .then(function(receipt){
+            return receipt
+           });
 }
 
 async function endGame(gameId) {
@@ -177,4 +184,4 @@ async function checkPriceAgainstLimit(crab){
 }
 
 
-module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit}
+module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendReinforceTx}

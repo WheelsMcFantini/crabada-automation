@@ -2,7 +2,7 @@ const { privateDecrypt } = require('crypto')
 const https = require('https')
 const fetch = require('node-fetch')
 const { exit } = require('process')
-const { startGame } = require('./crabada-tx.js')
+const { startGame, sendReinforceTx, checkPriceAgainstLimit, reinforceTeam} = require('./crabada-tx.js')
 IDLE_API = 'idle-api.crabada.com'
 USER_MINES_PATH = '/public/idle/mines?user_address='
 MINE_PATH = '/public/idle/mine/'
@@ -17,6 +17,7 @@ const Web3 = require('web3');
 const { Console } = require('console')
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const { format, createLogger, transports } = require('winston')
+const { on } = require('events')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 //const loggingWinston = new LoggingWinston();
@@ -28,18 +29,18 @@ const logger = createLogger({
     }),
     format((info, opts) => {
       let level = info.level.toUpperCase();
-        if(level === 'VERBOSE') {
-          level = 'DEBUG';
-        }
+      if (level === 'VERBOSE') {
+        level = 'DEBUG';
+      }
 
-        info['severity'] = level;
-        delete info.level;
-        return info;
+      info['severity'] = level;
+      delete info.level;
+      return info;
     })(),
     format.errors({ stack: true }),
     format.splat(),
     format.json()),
-    transports: [
+  transports: [
     new transports.Console(),
     //loggingWinston
     //new transports.File({ filename: 'combined.log' })
@@ -51,7 +52,7 @@ async function retrieveLatestGameInfo(address) {
   const url = `https://${IDLE_API}${USER_MINES_PATH}${address}${EXTRA_OPTS}`
   logger.info(`[Crabada-game] ${url}`)
   logger.info(`[Crabada-game] Retrieving latest game status for ${address}: ${url}`)
-  let data ={}
+  let data = {}
   try {
     data = await fetch(url)
     logger.info(data)
@@ -65,7 +66,7 @@ async function retrieveLatestGameInfo(address) {
     const no_data = await fetch(no_game_url)
     const no_gameData = await no_data.json()
     logger.info(`[Crabada-game] ${no_gameData['result']['data'][0]['team_id']}`)
-    return {'game_id': 'NO_GAME', 'team_id': `${no_gameData['result']['data'][0]['team_id']}`}
+    return { 'game_id': 'NO_GAME', 'team_id': `${no_gameData['result']['data'][0]['team_id']}` }
   } else {
     logger.info(`[Crabada-game] Latest mine ID: ${gameData['result']['data'][0]['game_id']}`)
     return gameData['result']['data'][0]['game_id']
@@ -73,7 +74,7 @@ async function retrieveLatestGameInfo(address) {
 }
 
 async function getMineInfo(mine_id) {
-  
+
   const url = `https://${IDLE_API}${MINE_PATH}${mine_id}`
   logger.info(`[Crabada-game] Retrieving mine object for Mine: ${mine_id}`)
   try {
@@ -84,7 +85,7 @@ async function getMineInfo(mine_id) {
   } catch (error) {
     logger.error(error)
   }
-  
+
 }
 
 //might make sense to feed a type of sort in?
@@ -103,19 +104,19 @@ async function getCrabsForHire() {
   }
 }
 
-async function chooseCrab(mine, listOfCrabsToHire){
+async function chooseCrab(mine, listOfCrabsToHire) {
   bestCrabs = []
-  for (i in listOfCrabsToHire){
-      //console.log(listOfCrabsToHire[i])
-      crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
-      //if positive, add to best crabs, otherwise, next.
-      if (Math.sign(crabMeta['value']) ==1) {
-          bestCrabs.push(crabMeta)
-      }
+  for (i in listOfCrabsToHire) {
+    //console.log(listOfCrabsToHire[i])
+    crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
+    //if positive, add to best crabs, otherwise, next.
+    if (Math.sign(crabMeta['value']) == 1) {
+      bestCrabs.push(crabMeta)
+    }
   }
   //console.log("pre-sort")
   //console.log(bestCrabs)
-  bestCrabs.sort(function(a, b){return b['value'] - a['value']})
+  bestCrabs.sort(function (a, b) { return b['value'] - a['value'] })
   //console.log("post-sort")
   logger.info(`[Crabada-game] ${bestCrabs}`)
   return bestCrabs
@@ -140,11 +141,11 @@ async function calculateMR(mine, crab) {
   potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
   difference = potentialMinersRevengeChance - currentMinersRevengeChance
 
-  logger.info(`[Crabada-game] Current MR chance is ${currentMinersRevengeChance}%, potential MR chance with crab-${crab['id']} becomes ${potentialMinersRevengeChance}, a difference of ${difference}`)
+  //logger.info(`[Crabada-game] Current MR chance is ${currentMinersRevengeChance}%, potential MR chance with crab-${crab['id']} becomes ${potentialMinersRevengeChance}, a difference of ${difference}`)
   const bn = await web3.utils.toBN(crab['price'])
   numTus = await web3.utils.fromWei(bn, 'Ether')
-  logger.info(`[Crabada-game] With a price of ${numTus} TUS and a bonus of ${difference}, this crab gets you ${difference/numTus} MR chance per TUS`)
-  return {'id': crab['id'],'price': crab['price'], 'value': difference/numTus}
+  //logger.info(`[Crabada-game] With a price of ${numTus} TUS and a bonus of ${difference}, this crab gets you ${difference / numTus} MR chance per TUS`)
+  return { 'id': crab['id'], 'price': crab['price'], 'value': difference / numTus }
 }
 
 //Takes a list of crabs as input and calculates the MP mod for Miners revenge
@@ -152,10 +153,10 @@ function getMPMod(crabList) {
   total = 0
   //console.log(crabList)
   for (crab in crabList) {
-      //console.log(crabList[crab])
-      mp = crabList[crab]['critical'] + crabList[crab]['speed']
-      total += mp
-      console.log(total)
+    //console.log(crabList[crab])
+    mp = crabList[crab]['critical'] + crabList[crab]['speed']
+    total += mp
+    //console.log(total)
   }
   //console.log(`total mp:${total}`)
 
@@ -172,6 +173,30 @@ function getBPMod(mine) {
   return bpMod
 }
 
+async function reinforcementWrapper(mine) {
+  crabsForHire = await getCrabsForHire()
+  crabs = await chooseCrab(mine, crabsForHire)
+  //crabs is now an ordered list of the best crabs instead of 1 crab
+  if (await checkPriceAgainstLimit(crabs[0])) {
+    logger.info(`[Crabada-game] selecting the following crab ${crabs[0]}`)
+    signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
+    receipt = await sendReinforceTx(signedReinforcement)
+    return receipt
+  } else {
+    logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
+    process.exit(0)
+  }
+}
+/* web3.eth.sendTransaction({from: '0x123...', data: '0x432...'})
+.once('sending', function(payload){ ... })
+.once('sent', function(payload){ ... })
+.once('transactionHash', function(hash){ ... })
+.once('receipt', function(receipt){ ... })
+.on('confirmation', function(confNumber, receipt, latestBlockHash){ ... })
+.on('error', function(error){ ... })
+.then(function(receipt){
+ // will be fired once the receipt is mined
+});*/
 
 
-module.exports = { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, chooseCrab, calculateMR }
+module.exports = { retrieveLatestGameInfo, getMineInfo, getCrabsForHire, chooseCrab, calculateMR, reinforcementWrapper }
