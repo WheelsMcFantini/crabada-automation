@@ -47,7 +47,8 @@ jobs:
           runtime: 'nodejs16'
           entry_point: 'gameRunner'
           region: 'us-east1'
-      
+          service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
+          
     # Example of using the output
       - id: 'test'
         run: 'curl "${{ steps.deploy.outputs.url }}"'
