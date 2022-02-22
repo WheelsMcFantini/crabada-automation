@@ -41,7 +41,7 @@ jobs:
         with:
           name: 'function-1'
           runtime: 'nodejs16'
-          source_dir: '${GITHUB_WORKSPACE}/src'
+          source_dir: './'
           entry_point: 'gameRunner'
       
     # Example of using the output
