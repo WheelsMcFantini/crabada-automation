@@ -33,9 +33,10 @@ jobs:
       - id: auth
         uses: 'google-github-actions/auth@v0'
         with:
-          workload_identity_provider: 'projects/1087628060567/locations/global/workloadIdentityPools/github-crabada/providers/github-provider'
-          service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
-          create_credentials_file: 'true'
+          #workload_identity_provider: 'projects/1087628060567/locations/global/workloadIdentityPools/github-crabada/providers/github-provider'
+          #service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
+          #create_credentials_file: 'true'
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
           
       - id: 'gcloud'
         name: 'gcloud'
