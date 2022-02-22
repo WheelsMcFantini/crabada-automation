@@ -47,7 +47,7 @@ jobs:
           runtime: 'nodejs16'
           entry_point: 'gameRunner'
           region: 'us-east1'
-          service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
+          service_account_email: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
           
     # Example of using the output
       - id: 'test'
