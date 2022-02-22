@@ -26,6 +26,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      
+      - id: list-dir
+        run: ls -al
 
       - id: auth
         uses: google-github-actions/auth@v0
@@ -38,7 +41,7 @@ jobs:
         with:
           name: 'function-1'
           runtime: 'nodejs16'
-          source_dir: './src'
+          source_dir: '${GITHUB_WORKSPACE}/src'
           entry_point: 'gameRunner'
       
     # Example of using the output
