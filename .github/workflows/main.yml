@@ -44,7 +44,7 @@ jobs:
           gcloud auth login --brief --cred-file="${{ steps.auth.outputs.credentials_file_path }}"
           gcloud services list
 
-      - name: Cloud Functions Deploy
+      - name: deploy
         uses: 'google-github-actions/deploy-cloud-functions@v0'
         with:
           name: 'function-2'
