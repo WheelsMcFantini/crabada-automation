@@ -35,6 +35,7 @@ jobs:
         with:
           workload_identity_provider: 'projects/1087628060567/locations/global/workloadIdentityPools/github-crabada/providers/github-provider'
           service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
+          token_format: 'access_token'
       
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
