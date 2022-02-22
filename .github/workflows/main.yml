@@ -36,6 +36,7 @@ jobs:
           workload_identity_provider: 'projects/1087628060567/locations/global/workloadIdentityPools/github-crabada/providers/github-provider'
           service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
           create_credentials_file: 'true'
+          token_format: 'access_token'
           
       - id: 'gcloud'
         name: 'gcloud'
