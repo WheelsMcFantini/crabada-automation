@@ -48,7 +48,7 @@ jobs:
       - name: Cloud Functions Deploy
         uses: 'google-github-actions/deploy-cloud-functions@v0'
         with:
-          name: 'function-1'
+          name: 'function-2'
           runtime: 'nodejs16'
           entry_point: 'gameRunner'
           region: 'us-east1'
