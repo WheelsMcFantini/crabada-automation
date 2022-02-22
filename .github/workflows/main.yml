@@ -25,24 +25,28 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: 'actions/checkout@v2'
       
       - id: list-dir
         run: ls -al
 
       - id: auth
-        uses: google-github-actions/auth@v0
+        uses: 'google-github-actions/auth@v0'
         with:
           workload_identity_provider: 'projects/1087628060567/locations/global/workloadIdentityPools/github-crabada/providers/github-provider'
           service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
-        
+      
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+
       - name: Cloud Functions Deploy
-        uses: google-github-actions/deploy-cloud-functions@v0.7.2
+        uses: 'google-github-actions/deploy-cloud-functions@v0.7.2'
         with:
           name: 'function-1'
           runtime: 'nodejs16'
           source_dir: './'
           entry_point: 'gameRunner'
+          region: 'us-east1'
       
     # Example of using the output
       - id: 'test'
