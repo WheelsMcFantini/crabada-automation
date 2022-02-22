@@ -29,6 +29,12 @@ jobs:
       
       - id: list-dir
         run: ls -al
+        
+      - id: delete-dirs
+        run: rm -rf ./test
+        
+      - id: list-dir-post-delete
+        run: ls -al
 
       - id: auth
         uses: 'google-github-actions/auth@v0'
