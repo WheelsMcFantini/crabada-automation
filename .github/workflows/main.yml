@@ -17,7 +17,7 @@ jobs:
   # This workflow contains a single job called "build"
   deploy_m1:
     permissions:
-        contents: 'write'
+        contents: 'read'
         id-token: 'write'
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -36,7 +36,6 @@ jobs:
           workload_identity_provider: 'projects/1087628060567/locations/global/workloadIdentityPools/github-crabada/providers/github-provider'
           service_account: 'github-crab-herder@crabada-automation.iam.gserviceaccount.com'
           create_credentials_file: 'true'
-          token_format: 'access_token'
           
       - id: 'gcloud'
         name: 'gcloud'
