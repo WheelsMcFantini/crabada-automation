@@ -9,6 +9,7 @@ const ADDRESS = process.env.ADDRESS
 const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
+const swimming = true
 const { format, createLogger, transports } = require('winston')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
@@ -59,8 +60,8 @@ async function startGame(teamId) {
 
     const transaction = {
         'to': CRABADA_CONTRACT,
-        'gas': gasEstimate,
-        'maxPriorityFeePerGas': 1000000000,
+        'gas': gasEstimate, //320000
+        'gasPrice': "0000000000",
         'nonce': nonce,
         // optional data field to send message or execute smart contract
         'data': startGameData
@@ -68,9 +69,9 @@ async function startGame(teamId) {
 
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
 
-    web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
+    await web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
-            logger.info("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
+            logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`);
         } else {
             logger.info("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
@@ -93,14 +94,23 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
     //TODO: Logic to build the reinforce game data
     gameId = convertNumberToPaddedHex(gameId)
     crabadaId = convertNumberToPaddedHex(crabadaId)
-    borrowPrice = convertNumberToPaddedHex(borrowPrice)
+    borrowPrice = convertNumberToPaddedHex('borrowPrice')
 
 
     const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
-    const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
-
-    const transaction = {
+    console.log("estimating gas")
+    let gasEstimate
+    try { 
+         gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
+    }
+    catch (error){
+        logger.log(`This is an error! ${error} |DONE`)
+    }
+    //gasestimate; if no error, set variable. If error, print a word and the error?
+    console.log("gas estimated")
+    /*EIP-1559 style TX 
+        const transaction = {
         'to': CRABADA_CONTRACT,
         'gas': gasEstimate, //320000
         'maxPriorityFeePerGas': 1000000000,
@@ -108,10 +118,78 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
         // optional data field to send message or execute smart contract
         'data': reinforceGameData
     };
-
+    */
+    //Normie
+    const transaction = {
+        'to': CRABADA_CONTRACT,
+        'gas': gasEstimate, //320000
+        'gasPrice': "0000000000",
+        'nonce': nonce,
+        // optional data field to send message or execute smart contract
+        'data': reinforceGameData
+    };
+    console.log("tx created but not signed")
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
-
+    console.log("done with reinforce")
     return signedTx
+    
+}
+
+async function reinforceTeamFromInventory(gameId, crabadaId) {
+    /*
+    Function: reinforceDefense(uint256 gameId, uint256 crabadaId, uint256 borrowPrice) ***
+
+    MethodID: 0x08873bfb
+    [0]:  000000000000000000000000000000000000000000000000000000000003f870
+    [1]:  0000000000000000000000000000000000000000000000000000000000002425
+    [2]:  00000000000000000000000000000000156ef9730933c22a3e5da6e400000000
+
+    OG:
+    0x08873bfb000000000000000000000000000000000000000000000000000000000003f870000000000000000000000000000000000000000000000000000000000000242500000000000000000000000000000000156ef9730933c22a3e5da6e400000000
+    */
+
+    //TODO: Logic to build the reinforce game data
+    gameId = convertNumberToPaddedHex(gameId)
+    crabadaId = convertNumberToPaddedHex(crabadaId)
+    let borrowPrice = convertNumberToPaddedHex('000000000000000000')
+
+
+    const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
+    const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
+    console.log("estimating gas")
+    let gasEstimate
+    try { 
+         gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
+    }
+    catch (error){
+        logger.log(`This is an error! ${error} |DONE`)
+    }
+    //gasestimate; if no error, set variable. If error, print a word and the error?
+    console.log("gas estimated")
+    /*EIP-1559 style TX 
+        const transaction = {
+        'to': CRABADA_CONTRACT,
+        'gas': gasEstimate, //320000
+        'maxPriorityFeePerGas': 1000000000,
+        'nonce': nonce,
+        // optional data field to send message or execute smart contract
+        'data': reinforceGameData
+    };
+    */
+    //Normie
+    const transaction = {
+        'to': CRABADA_CONTRACT,
+        'gas': gasEstimate, //320000
+        'gasPrice': "0000000000",
+        'nonce': nonce,
+        // optional data field to send message or execute smart contract
+        'data': reinforceGameData
+    };
+    console.log("tx created but not signed")
+    const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
+    console.log("done with reinforce")
+    return signedTx
+    
 }
 
 async function createTransaction(transactionPayload){
@@ -135,14 +213,16 @@ async function createTransaction(transactionPayload){
 async function sendTx(signedTransaction){
     const sendTxResult = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
         .on('transactionHash', function(hash){logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`)})
-        .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${receipt}`)})
-        .on('confirmation', function(confirmation){
+        .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${JSON.stringify(receipt)}`)
+        return statusEnum.SUCCESS
+    })
+        /* .on('confirmation', function(confirmation){
             logger.info("[Crabada-game] Team Reinforced")
-            return statusEnum.SUCCESS
-        })
+            
+        }) */
         .on('error', function(error){
         //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-        logger.error("[Crabada-game] ❗Something went wrong while processing your transaction:", error)
+        console.log("[Crabada-game] ❗Something went wrong while processing your transaction:", error)
         if (error == "Error CRAB LOCKED") {
             return statusEnum.CRAB_LOCKED
         } else {
@@ -214,4 +294,4 @@ async function checkPriceAgainstLimit(crab){
 }
 
 
-module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendTx, statusEnum}
+module.exports = {startGame, reinforceTeam, reinforceTeamFromInventory, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendTx, statusEnum}

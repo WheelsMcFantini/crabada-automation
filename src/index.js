@@ -1,5 +1,5 @@
 /*eslint-env node, mocha */
-const { retrieveLatestGameInfo, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
+const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame } = require('./crabada-tx.js')
 require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
@@ -14,7 +14,7 @@ const logger = createLogger({
     format.errors({ stack: true }),
     format.splat(),
     format.json()),
-    transports: [
+  transports: [
     new transports.Console(),
     //new transports.File({ filename: 'combined.log' })
   ]
@@ -64,10 +64,11 @@ async function playGame(mine) {
     case 'create-game': {
       //phaseLogger(gameState)
       //wait for opponent to go
-      break; }
+      break;
+    }
     case 'attack': //means they have just attacked me
     case 'reinforce-attack': {//means they have just reinforced their attack
-      if (gameState.length > 4){
+      if (gameState.length > 4) {
         //console.log("no need to reinforce a third time, wait for settle")
         logger.info("[Game-runner] no need to reinforce a third time, wait for settle")
         //should sleep for an hour or so
@@ -90,9 +91,9 @@ async function playGame(mine) {
         process.exit(0)
       } */
     }
-    case 'reinforce-defense':{ //means it's their turn, and I need to chill
+    case 'reinforce-defense': { //means it's their turn, and I need to chill
       phaseLogger(gameState)
-      break 
+      break
     }
     case 'settle': {
       phaseLogger(gameState)
@@ -103,12 +104,12 @@ async function playGame(mine) {
       //console.log(currentTime)
       //console.log(timeUntilGameEnds)
 
-      if (Math.sign(timeUntilGameEnds) ==1) {
+      if (Math.sign(timeUntilGameEnds) == 1) {
         logger.info(`[Game-runner] game still running until ${gameEnd}`)
         //setTimeout(function() {
         //  console.log("Time's up! Game should be over now")
         //  endGame(mine['result']['game_id'])
-      //}, timeUntilGameEnds);
+        //}, timeUntilGameEnds);
       } else {
         logger.info(`[Game-runner] Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
         endGame(mine['result']['game_id'])
@@ -119,7 +120,7 @@ async function playGame(mine) {
     case 'start': {
       logger.info("[Game-runner] Starting game...")
       startGame(mine['result']['team_id'])
-      .then(logger.http("[Game-runner] Game started"))
+        .then(logger.http("[Game-runner] Game started"))
       break
     }
   }
@@ -127,23 +128,48 @@ async function playGame(mine) {
 
 
 async function gameRunner() {
-  if (ACTIVE == 'False'){process.exit(0)}
-  logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
-  const game_info = await retrieveLatestGameInfo(ADDRESS)
-  logger.info(game_info)
-  if (game_info['game_id'] == 'NO_GAME') {
-    logger.info(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
-    startGame(game_info['team_id'])
-  } else {
-    const mine = await getMineInfo(game_info)
-    //console.log(`[Game-runner] Retrieved object for Mine ${latestGameID}:`)
-    logger.info(`[Game-runner] ${JSON.stringify(mine)}`)
+  //query address for teams, for each team, check status
+  //based on strategy, run game
+  if (ACTIVE == 'False') { process.exit(0) }
+  const teamData = await getTeamsAtAddress(ADDRESS)
+  console.log(teamData.length)
+  for (let i = 0; i < teamData.length; i++) {
+    //for each team
+    console.log(i)
+    if (teamData[i]['crabada_id_1'] == null || teamData[i]['crabada_id_2'] == null || teamData[i]['crabada_id_3'] == null){
+      console.log(`${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`)
+      continue
+    }
+    logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}:${teamData[i]['team_id']}`)
+    logger.info(teamData[i])
+    if (teamData[i]['game_id'] == 'NO_GAME' || teamData[i]['game_id'] == null) {
+      logger.info(`[Game-runner] no game ID found for ${ADDRESS}:${teamData[i]['team_id']}, attempting to start game...`)
+      startGame(teamData[i]['team_id'])
+    } else {
+      const mine = await getMineInfo(teamData[i]['game_id'])
+      //console.log(`[Game-runner] Retrieved object for Mine ${latestGameID}:`)
+      logger.info(`[Game-runner] ${JSON.stringify(mine)}`)
 
-    //loop goes here?
-    //console.log(`[Game-runner] ${game_id}`)
-    playGame(mine)
-    logger.info(`[Game-runner] closing down...`)
+      //loop goes here?
+      //console.log(`[Game-runner] ${game_id}`)
+      await playGame(mine)
+    }
+    /*logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
+    const game_info = await retrieveLatestGameInfo(ADDRESS)
+    logger.info(game_info)
+    if (game_info['game_id'] == 'NO_GAME') {
+      logger.info(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
+      startGame(game_info['team_id'])
+    } else {
+      const mine = await getMineInfo(game_info)
+      //console.log(`[Game-runner] Retrieved object for Mine ${latestGameID}:`)
+      logger.info(`[Game-runner] ${JSON.stringify(mine)}`)
+
+      //loop goes here?
+      //console.log(`[Game-runner] ${game_id}`)
+      await playGame(mine)
+    }*/
   }
 }
 gameRunner()
-module.exports = {gameRunner, playGame, phaseLogger}
+module.exports = { gameRunner, playGame, phaseLogger }
