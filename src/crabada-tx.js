@@ -94,7 +94,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
     //TODO: Logic to build the reinforce game data
     gameId = convertNumberToPaddedHex(gameId)
     crabadaId = convertNumberToPaddedHex(crabadaId)
-    borrowPrice = convertNumberToPaddedHex('borrowPrice')
+    borrowPrice = convertNumberToPaddedHex(borrowPrice)
 
 
     const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
@@ -258,7 +258,7 @@ async function endGame(gameId) {
     const transaction = {
         'to': CRABADA_CONTRACT,
         'gas': gasEstimate, //167235
-        'maxPriorityFeePerGas': 1000000000,
+        'gasPrice': "0000000000",
         'nonce': nonce,
         // optional data field to send message or execute smart contract
         'data': closeGameData

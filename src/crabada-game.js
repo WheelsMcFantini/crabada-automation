@@ -142,9 +142,9 @@ async function chooseCrab(mine, listOfCrabsToHire) {
   let bestCrabs = []
   for (let i in listOfCrabsToHire) {
     console.log(listOfCrabsToHire[i])
-    let hasPrice = Object.prototype.hasOwnProperty.call(listOfCrabsToHire[i], 'price');
+    //let hasPrice = Object.prototype.hasOwnProperty.call(listOfCrabsToHire[i], 'price');
 
-    if (hasPrice){listOfCrabsToHire[i].price = await web3.utils.toWei('000000000000000001', 'ether')}
+    //if (hasPrice){listOfCrabsToHire[i].price = await web3.utils.toWei('000000000000000001', 'ether')}
     console.log(listOfCrabsToHire[i])
     console.log(`${mine}`)
     const crabMeta = await calculateMR(mine, listOfCrabsToHire[i])

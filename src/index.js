@@ -1,6 +1,6 @@
 /*eslint-env node, mocha */
 const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
-const { startGame, endGame } = require('./crabada-tx.js')
+const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
 require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const ACTIVE = process.env.ACTIVE
@@ -112,9 +112,15 @@ async function playGame(mine) {
         //}, timeUntilGameEnds);
       } else {
         logger.info(`[Game-runner] Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
-        endGame(mine['result']['game_id'])
+        const signedEndGameTX = await endGame(mine['result']['game_id'])
+        const status = await sendTx(signedEndGameTX);
+        logger.info(`status: ${status}`)
+      if (status == statusEnum.SUCCESS){
+        logger.info("TX success")
+      }else if (status == statusEnum.FAIL){
+        logger.info("TX fail")
       }
-
+    }
       break
     }
     case 'start': {
@@ -169,6 +175,7 @@ async function gameRunner() {
       //console.log(`[Game-runner] ${game_id}`)
       await playGame(mine)
     }*/
+    await new Promise(resolve => setTimeout(resolve, 10000));
   }
 }
 gameRunner()
