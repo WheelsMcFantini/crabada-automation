@@ -1,5 +1,5 @@
 /*eslint-env node, mocha */
-const fetch = require('../node_modules/node-fetch')
+const fetch = require('node-fetch')
 const { sendTx, checkPriceAgainstLimit, reinforceTeam, reinforceTeamFromInventory, statusEnum} = require('./crabada-tx.js')
 //const IDLE_API = 'idle-api.crabada.com'
 const IDLE_API = 'idle-game-subnet-test-api.crabada.com'
