@@ -24,14 +24,20 @@ async function parseMine(team){
   //given a team "object", check if a game is running, if not, try to start one.
   if (team['game_id'] == null){
       console.log(`There does not appear to be an active mine for team ${team['team_id']}. We should start one.`)
-      startGame(team['team_id'])
+      const signedStartGameTX = await startGame(team['team_id'])
+      const status = await sendTx(signedStartGameTX);
+      logger.info(`status: ${status}`)
+      if (status == statusEnum.SUCCESS){
+          logger.info("TX success")
+      } else if (status == statusEnum.FAIL){
+          logger.info("TX fail")
+      }
       return 'start'
   }
 
   let mine = await getMineInfo(team['game_id'])
 
   //is the game over? if time between last action and now is more than 30m, it's done
-  //console.log(mine['result']['process'][mine['result']['process'].length - 1]['transaction_time'])
   let lastAction = mine['result']['process'][mine['result']['process'].length - 1]
   let lastActionTime = lastAction['transaction_time']
   let gameEndTime = mine['result']['end_time']
@@ -254,5 +260,5 @@ async function gameRunner() {
     await new Promise(resolve => setTimeout(resolve, 10000));
   }
 }
-gameRunner()
+//gameRunner()
 module.exports = { gameRunner, playGame, phaseLogger }

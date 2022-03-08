@@ -258,20 +258,8 @@ async function reinforcementWrapper(mine) {
       }
     } else {
         logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.");
-        process.exit(0);
+        return 'fail';
     }  }
-  /* logger.info(`[Crabada-game] Reinforcing from inventory`);
-      console.log(crabs)
-      const signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price']);
-      const status = await sendTx(signedReinforcement);
-      logger.info(`status: ${status}`)
-      if (status == statusEnum.SUCCESS){
-        logger.info("TX success")
-      }else if (status == statusEnum.FAIL){
-        logger.info("TX fail")
-      } else if (status == statusEnum.CRAB_LOCKED){
-        logger.info("Crab locked")
-      } */
   
 }
 
