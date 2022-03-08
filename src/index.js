@@ -20,7 +20,67 @@ const logger = createLogger({
   ]
 });
 
+async function parseMine(team){
+  //given a team "object", check if a game is running, if not, try to start one.
+  if (team['game_id'] == null){
+      console.log(`There does not appear to be an active mine for team ${team['team_id']}. We should start one.`)
+      startGame(team['team_id'])
+      return 'start'
+  }
 
+  let mine = await getMineInfo(team['game_id'])
+
+  //is the game over? if time between last action and now is more than 30m, it's done
+  //console.log(mine['result']['process'][mine['result']['process'].length - 1]['transaction_time'])
+  let lastAction = mine['result']['process'][mine['result']['process'].length - 1]
+  let lastActionTime = lastAction['transaction_time']
+  let gameEndTime = mine['result']['end_time']
+  let now = Date.now()
+  //console.log(now)
+  let currentTime = Math.round(now/1000)
+  let gameRound = mine['result']['game_round']
+  var phaseEnd = lastActionTime + 30*60000;
+  //console.log(currentTime)
+  //console.log(phaseEnd)
+  //console.log(currentTime)
+  //check to see if game is over or someone is out of time
+  
+  //if the game is over, end the game
+  if (currentTime > gameEndTime) {
+      console.log(`the game should be over, the current time is ${currentTime} and that's greater than the end time of ${gameEndTime}`)
+      //return 'settle'
+      const signedEndGameTX = await endGame(mine['result']['game_id'])
+      const status = await sendTx(signedEndGameTX);
+      logger.info(`status: ${status}`)
+      if (status == statusEnum.SUCCESS){
+          logger.info("TX success")
+      } else if (status == statusEnum.FAIL){
+          logger.info("TX fail")
+      }
+  }
+  //if the turn has timed out, wait for game to end, not working for some reason
+  else if (currentTime > phaseEnd){
+      console.log(`the game should be over, more than 30 min have elapsed since the last action`)
+      return 'wait'
+  } 
+  //if the last turn has been taken, wait for game to end
+  else if (gameRound == 4) {
+      console.log(`the game is essentially over, the last turn has been taken`)
+      return 'wait'
+  //otherwise, play the game
+  } else {
+      console.log(`the game is still going until ${gameEndTime}`)
+      if (gameRound == 0 || gameRound == 2){
+          console.log(`gotta reinforce the defenses!`)
+          //return 'reinforce'
+          await reinforcementWrapper(mine)
+          return 'reinforce'
+      } else if (gameRound == null || gameRound == 1 || gameRound == 3){
+          console.log(`waiting for opponent to go`)
+          return 'wait'
+      }
+  }
+}
 
 function phaseLogger(gameState) {
   let phase = gameState[gameState.length - 1]
@@ -161,7 +221,8 @@ async function gameRunner() {
       console.log(`[Game-runner ${teamID}] ${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`)
       continue
     }
-    logger.info(`[Game-runner ${teamID}] Retrieving lastest game ID for ${ADDRESS}:${teamData[i]['team_id']}`)
+    await parseMine(teamData[i])
+    /*  3/07  logger.info(`[Game-runner ${teamID}] Retrieving lastest game ID for ${ADDRESS}:${teamData[i]['team_id']}`)
     logger.info(teamData[i])
     if (teamData[i]['game_id'] == 'NO_GAME' || teamData[i]['game_id'] == null) {
       logger.info(`[Game-runner ${teamID}] no game ID found for ${ADDRESS}:${teamData[i]['team_id']}, attempting to start game...`)
@@ -174,7 +235,7 @@ async function gameRunner() {
       //loop goes here?
       //console.log(`[Game-runner] ${game_id}`)
       await playGame(mine)
-    }
+    3/07 } */
     /*logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
     const game_info = await retrieveLatestGameInfo(ADDRESS)
     logger.info(game_info)
