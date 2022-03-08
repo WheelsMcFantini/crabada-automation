@@ -265,14 +265,14 @@ async function endGame(gameId) {
     };
     //console.log(transaction)
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
-
-    web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
+    return signedTx
+   /*  web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (error, hash) {
         if (!error) {
             logger.info("[Crabada-transaction] 🎉 The hash of your transaction is: ", hash, "\n Check the Mempool to view the status of your transaction!");
         } else {
             logger.info("[Crabada-transaction] ❗Something went wrong while submitting your transaction:", error)
         }
-    });
+    }); */
 }
 
 async function checkPriceAgainstLimit(crab){

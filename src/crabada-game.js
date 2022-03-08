@@ -58,9 +58,11 @@ async function getTeamsAtAddress(address) {
     logger.error(error)
   }
   const teamData = await data.json()
-  //teams can be LOCK, AVAILABLE, MINING, LOOTING?
+  //teams can be LOCK, AVAILABLE, MINING, LOOTING?, only return teams with 3 crabs
   return teamData['result']['data']
 }
+
+
 
 //currently supports a single game, function returns the Game_ID
 async function retrieveLatestGameInfo(address) {
@@ -166,20 +168,21 @@ async function calculateMR(mine, crab) {
   //First I Want to enumerate all the Crabs MP and figure out the modifier
   const BASE_CHANCE = 7.0
   const crabList = [...mine['result']['defense_team_info']]
-  console.log(crabList[0].toString())
+  //console.log(`${JSON.stringify(mine)}`)
+  console.log(`${crabList[0].toString()}`)
   let mpMod = getMPMod(crabList)
-
+  console.log(`current MPmod = ${mpMod}`)
   let bpMod = getBPMod(mine)
-
+  console.log(`current BPmod = ${bpMod}`)
   const currentMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
 
   //add potential crab to the team for calculations
   crabList.push(crab)
 
   mpMod = getMPMod(crabList)
-
+  //console.log(`${crabList[0].toString()}`)
   bpMod = getBPMod(mine)
-
+  //console.log(`${crabList[0].toString()}`)
   const potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
   const difference = potentialMinersRevengeChance - currentMinersRevengeChance
 
@@ -209,11 +212,14 @@ function getMPMod(crabList) {
 //takes a mine as input and calculates the BP closeness for Miners Revenge
 function getBPMod(mine) {
   //messes up if defense points are higher than attack
+ 
   let { defense_point, attack_point } = mine['result']
-  console.log(attack_point)
-  console.log(defense_point)
+  console.log(`stringified mine.result.attack_point? ${JSON.stringify(mine['result']['attack_point'])}`)
+  console.log(`stringified mine.result.defense_point? ${JSON.stringify(mine['result']['defense_point'])}`)
   let delta = attack_point - defense_point
+  console.log(`Delta = ${delta}`)
   let bpMod = 20 / Math.sqrt(delta)
+  console.log(`bpMod = ${bpMod}`)
   return bpMod
 }
 

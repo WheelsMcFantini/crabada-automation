@@ -57,9 +57,23 @@ function phaseLogger(gameState) {
 
 async function playGame(mine) {
   const gameState = mine['result']['process']
+  const teamID = mine['result']['team_id']
   let phase = gameState[gameState.length - 1]
   //console.log(gameState[gameState.length - 1]['action'])
-  logger.info(`[Game-runner] current phase: ${phase['action']}`)
+  logger.info(`[Game-runner ${teamID}] current phase: ${phase['action']}`)
+  let currentTime = Math.round(Date.now()/1000)
+  let gameEndTime = mine['result']['end_time']
+  if (currentTime >= gameEndTime){
+    logger.info(`[Game-runner ${teamID}] Game scheduled to end at ${gameEndTime}, currently it's ${currentTime}, lets end the game`)
+        const signedEndGameTX = await endGame(mine['result']['game_id'])
+        const status = await sendTx(signedEndGameTX);
+        logger.info(`status: ${status}`)
+      if (status == statusEnum.SUCCESS){
+        logger.info("TX success")
+      }else if (status == statusEnum.FAIL){
+        logger.info("TX fail")
+      }
+  }
   switch (phase['action']) {
     case 'create-game': {
       //phaseLogger(gameState)
@@ -70,7 +84,7 @@ async function playGame(mine) {
     case 'reinforce-attack': {//means they have just reinforced their attack
       if (gameState.length > 4) {
         //console.log("no need to reinforce a third time, wait for settle")
-        logger.info("[Game-runner] no need to reinforce a third time, wait for settle")
+        logger.info(`[Game-runner ${teamID}] no need to reinforce a third time, wait for settle`)
         //should sleep for an hour or so
         break
       }
@@ -98,20 +112,20 @@ async function playGame(mine) {
     case 'settle': {
       phaseLogger(gameState)
       const gameEnd = new Date(mine['result']['end_time'] * 1000)
-      const currentTime = new Date()
+      currentTime = new Date()
       const timeUntilGameEnds = new Date(gameEnd - currentTime)
       //console.log(gameEnd)
       //console.log(currentTime)
       //console.log(timeUntilGameEnds)
 
       if (Math.sign(timeUntilGameEnds) == 1) {
-        logger.info(`[Game-runner] game still running until ${gameEnd}`)
+        logger.info(`[Game-runner ${teamID}] game still running until ${gameEnd}`)
         //setTimeout(function() {
         //  console.log("Time's up! Game should be over now")
         //  endGame(mine['result']['game_id'])
         //}, timeUntilGameEnds);
       } else {
-        logger.info(`[Game-runner] Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
+        logger.info(`[Game-runner ${teamID}] Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
         const signedEndGameTX = await endGame(mine['result']['game_id'])
         const status = await sendTx(signedEndGameTX);
         logger.info(`status: ${status}`)
@@ -124,9 +138,9 @@ async function playGame(mine) {
       break
     }
     case 'start': {
-      logger.info("[Game-runner] Starting game...")
+      logger.info(`[Game-runner ${teamID}] Starting game...`)
       startGame(mine['result']['team_id'])
-        .then(logger.http("[Game-runner] Game started"))
+        .then(logger.http(`[Game-runner ${teamID}] Game started`))
       break
     }
   }
@@ -141,20 +155,21 @@ async function gameRunner() {
   console.log(teamData.length)
   for (let i = 0; i < teamData.length; i++) {
     //for each team
+    const teamID = teamData[i]['team_id']
     console.log(i)
     if (teamData[i]['crabada_id_1'] == null || teamData[i]['crabada_id_2'] == null || teamData[i]['crabada_id_3'] == null){
-      console.log(`${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`)
+      console.log(`[Game-runner ${teamID}] ${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`)
       continue
     }
-    logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}:${teamData[i]['team_id']}`)
+    logger.info(`[Game-runner ${teamID}] Retrieving lastest game ID for ${ADDRESS}:${teamData[i]['team_id']}`)
     logger.info(teamData[i])
     if (teamData[i]['game_id'] == 'NO_GAME' || teamData[i]['game_id'] == null) {
-      logger.info(`[Game-runner] no game ID found for ${ADDRESS}:${teamData[i]['team_id']}, attempting to start game...`)
+      logger.info(`[Game-runner ${teamID}] no game ID found for ${ADDRESS}:${teamData[i]['team_id']}, attempting to start game...`)
       startGame(teamData[i]['team_id'])
     } else {
       const mine = await getMineInfo(teamData[i]['game_id'])
       //console.log(`[Game-runner] Retrieved object for Mine ${latestGameID}:`)
-      logger.info(`[Game-runner] ${JSON.stringify(mine)}`)
+      logger.info(`[Game-runner ${teamID}] ${JSON.stringify(mine)}`)
 
       //loop goes here?
       //console.log(`[Game-runner] ${game_id}`)
