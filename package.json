@@ -14,7 +14,6 @@
   },
   "scripts": {
     "test": "mocha || true",
-    "prepare": "husky install",
     "lint:js": "eslint . --ext .js",
     "lint-fix": "npm run lint:js -- --fix"
   },
