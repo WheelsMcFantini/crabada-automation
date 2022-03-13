@@ -257,7 +257,7 @@ async function gameRunner() {
       //console.log(`[Game-runner] ${game_id}`)
       await playGame(mine)
     }*/
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    //await new Promise(resolve => setTimeout(resolve, 10000));
   }
 }
 //gameRunner()
