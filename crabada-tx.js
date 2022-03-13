@@ -104,7 +104,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 
     const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
-    console.log("estimating gas")
+    logger.info("estimating gas")
     let gasEstimate
     try { 
          gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
@@ -133,9 +133,9 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
             'data': reinforceGameData
         };
     }
-    console.log("tx created but not signed")
+    logger.info("tx created but not signed")
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
-    console.log("done with reinforce")
+    logger.info("done with reinforce")
     return signedTx
     
 }
@@ -161,7 +161,7 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
 
     const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
-    console.log("estimating gas")
+    logger.info("estimating gas")
     let gasEstimate
     try { 
          gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
@@ -189,9 +189,9 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
             'data': reinforceGameData
         };
     }
-    console.log("tx created but not signed")
+    logger.info("tx created but not signed")
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
-    console.log("done with reinforce")
+    logger.info("done with reinforce")
     return signedTx
     
 }
@@ -220,10 +220,10 @@ async function sendTx(signedTransaction){
         .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${JSON.stringify(receipt)}`)
         .on('error', function(error, reciept){
             //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-            console.log(`[Crabada-game] ❗Something went wrong while processing your transaction. Error->${error}, Reciept->${reciept}`)
+            logger.info(`[Crabada-game] ❗Something went wrong while processing your transaction. Error->${error}, Reciept->${reciept}`)
         })
         //resolves here
-        .then(console.log("End TX code"))
+        .then(logger.info("End TX code"))
 })
 }
 
@@ -240,14 +240,14 @@ async function endGame(gameId) {
 
 
     const closeGameData = `0x2d6ef310${convertNumberToPaddedHex(gameId)}`
-    //console.log(closeGameData)
+    //logger.info(closeGameData)
 
     //const closeGameData = '0x2d6ef310000000000000000000000000000000000000000000000000000000000003f870'
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
     const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': closeGameData, 'nonce': nonce})
-    //console.log(gameId)
-    //console.log(gasEstimate)
-    //console.log(closeGameData)
+    //logger.info(gameId)
+    //logger.info(gasEstimate)
+    //logger.info(closeGameData)
     let transaction = {}
     if (SWIMMER_NETWORK){
         transaction = {
@@ -268,19 +268,19 @@ async function endGame(gameId) {
             'data': closeGameData
         };
     }
-    //console.log(transaction)
+    //logger.info(transaction)
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
     return signedTx
   
 }
 
 async function checkPriceAgainstLimit(crab){
-    //console.log("crab here:")
-    //console.log(crab)
+    //logger.info("crab here:")
+    //logger.info(crab)
     const bn = web3.utils.toBN(crab['price'])
     const priceCap = web3.utils.toBN("35000000000000000000")
-    //console.log(await web3.utils.fromWei(bn, 'Ether'))
-    //console.log(await web3.utils.fromWei(priceCap, 'Ether'))
+    //logger.info(await web3.utils.fromWei(bn, 'Ether'))
+    //logger.info(await web3.utils.fromWei(priceCap, 'Ether'))
     if (bn.lte(priceCap)){
         logger.info(`[Crabada-transaction] ${bn} is less than ${priceCap}`)
         logger.info("[Crabada-transaction] renting crab?")

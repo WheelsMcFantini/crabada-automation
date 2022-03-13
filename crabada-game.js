@@ -120,7 +120,7 @@ async function getCrabsForHire() {
       //if there's no crabs, keep going
       if (inventory['result']['totalRecord'] > 0){
         logger.info(`[Crabada-game] Idle crabs available for hire`)
-        console.log(inventory['result']['data'])
+        logger.info(inventory['result']['data'])
         return {crabsForHire: inventory['result']['data'], source: "inventory"}
       }
     }  catch (error) {
@@ -143,23 +143,23 @@ async function getCrabsForHire() {
 async function chooseCrab(mine, listOfCrabsToHire) {
   let bestCrabs = []
   for (let i in listOfCrabsToHire) {
-    console.log(listOfCrabsToHire[i])
+    logger.info(listOfCrabsToHire[i])
     //let hasPrice = Object.prototype.hasOwnProperty.call(listOfCrabsToHire[i], 'price');
 
     //if (hasPrice){listOfCrabsToHire[i].price = await web3.utils.toWei('000000000000000001', 'ether')}
-    console.log(listOfCrabsToHire[i])
-    console.log(`${mine}`)
+    logger.info(listOfCrabsToHire[i])
+    logger.info(`${mine}`)
     const crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
-    console.log(crabMeta)
+    logger.info(crabMeta)
     //if positive, add to best crabs, otherwise, next.
     if (Math.sign(crabMeta['value']) == 1 ) {
       bestCrabs.push(crabMeta)
     }
   }
-  //console.log("pre-sort")
-  //console.log(bestCrabs)
+  //logger.info("pre-sort")
+  //logger.info(bestCrabs)
   bestCrabs.sort(function (a, b) { return b['value'] - a['value'] })
-  //console.log("post-sort")
+  //logger.info("post-sort")
   logger.info(`[Crabada-game] ${bestCrabs}`)
   return bestCrabs
 }
@@ -168,21 +168,21 @@ async function calculateMR(mine, crab) {
   //First I Want to enumerate all the Crabs MP and figure out the modifier
   const BASE_CHANCE = 7.0
   const crabList = [...mine['result']['defense_team_info']]
-  //console.log(`${JSON.stringify(mine)}`)
-  console.log(`${crabList[0].toString()}`)
+  //logger.info(`${JSON.stringify(mine)}`)
+  logger.info(`${crabList[0].toString()}`)
   let mpMod = getMPMod(crabList)
-  console.log(`current MPmod = ${mpMod}`)
+  logger.info(`current MPmod = ${mpMod}`)
   let bpMod = getBPMod(mine)
-  console.log(`current BPmod = ${bpMod}`)
+  logger.info(`current BPmod = ${bpMod}`)
   const currentMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
 
   //add potential crab to the team for calculations
   crabList.push(crab)
 
   mpMod = getMPMod(crabList)
-  //console.log(`${crabList[0].toString()}`)
+  //logger.info(`${crabList[0].toString()}`)
   bpMod = getBPMod(mine)
-  //console.log(`${crabList[0].toString()}`)
+  //logger.info(`${crabList[0].toString()}`)
   const potentialMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
   const difference = potentialMinersRevengeChance - currentMinersRevengeChance
 
@@ -196,14 +196,14 @@ async function calculateMR(mine, crab) {
 //Takes a list of crabs as input and calculates the MP mod for Miners revenge
 function getMPMod(crabList) {
   let total = 0
-  //console.log(crabList)
+  //logger.info(crabList)
   for (let crab in crabList) {
-    //console.log(crabList[crab])
+    //logger.info(crabList[crab])
     let mp = crabList[crab]['critical'] + crabList[crab]['speed']
     total += mp
-    //console.log(total)
+    //logger.info(total)
   }
-  //console.log(`total mp:${total}`)
+  //logger.info(`total mp:${total}`)
 
   //((average MP - 56)*1.25)
   return (((total / crabList.length) - 56) * 1.25)
@@ -214,12 +214,12 @@ function getBPMod(mine) {
   //messes up if defense points are higher than attack
  
   let { defense_point, attack_point } = mine['result']
-  console.log(`stringified mine.result.attack_point? ${JSON.stringify(mine['result']['attack_point'])}`)
-  console.log(`stringified mine.result.defense_point? ${JSON.stringify(mine['result']['defense_point'])}`)
+  logger.info(`stringified mine.result.attack_point? ${JSON.stringify(mine['result']['attack_point'])}`)
+  logger.info(`stringified mine.result.defense_point? ${JSON.stringify(mine['result']['defense_point'])}`)
   let delta = attack_point - defense_point
-  console.log(`Delta = ${delta}`)
+  logger.info(`Delta = ${delta}`)
   let bpMod = 20 / Math.sqrt(delta)
-  console.log(`bpMod = ${bpMod}`)
+  logger.info(`bpMod = ${bpMod}`)
   return bpMod
 }
 
@@ -275,4 +275,4 @@ async function reinforcementWrapper(mine) {
 });*/
 
 
-module.exports = { getTeamsAtAddress, retrieveLatestGameInfo, getMineInfo, getCrabsForHire, chooseCrab, calculateMR, reinforcementWrapper }
+module.exports = { getTeamsAtAddress, getMineInfo, reinforcementWrapper }
