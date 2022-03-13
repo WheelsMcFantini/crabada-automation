@@ -102,8 +102,10 @@ async function gameRunner() {
       logger.info(`[Game-runner ${teamID}] ${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`)
       continue
     }
-    await parseMine(teamData[i])
-    //await new Promise(resolve => setTimeout(resolve, 10000));
+    let output = await parseMine(teamData[i])
+    if (output == 'reinforce'){
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
   }
 }
 //gameRunner()
