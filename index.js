@@ -44,7 +44,8 @@ async function parseMine(team){
   let now = Date.now()
   //logger.info(now)
   let currentTime = Math.round(now/1000)
-  let gameRound = mine['result']['game_round']
+  //let gameRound = mine['result']['game_round'] Swimmer code!!!!!
+  let gameRound = mine['result']['round']
   var phaseEnd = lastActionTime + 30*60000;
   //logger.info(currentTime)
   //logger.info(phaseEnd)
