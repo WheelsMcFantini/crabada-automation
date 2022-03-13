@@ -10,7 +10,6 @@ const ADDRESS = process.env.ADDRESS
 const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
-const swimming = true
 const { format, createLogger, transports } = require('winston')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
