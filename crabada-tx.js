@@ -223,7 +223,6 @@ async function sendTx(signedTransaction){
             logger.info(`[Crabada-game] ❗Something went wrong while processing your transaction. Error->${error}, Reciept->${reciept}`)
         })
         //resolves here
-        .then(logger.info("End TX code"))
 })
 }
 
