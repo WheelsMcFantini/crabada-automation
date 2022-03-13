@@ -46,9 +46,11 @@ async function parseMine(team){
   let currentTime = Math.round(now/1000)
   //let gameRound = mine['result']['game_round'] Swimmer code!!!!!
   let gameRound = mine['result']['round']
-  var phaseEnd = lastActionTime + 30*60000;
-  //logger.info(currentTime)
-  //logger.info(phaseEnd)
+  var phaseEnd = lastActionTime + 30*60;
+  logger.info(currentTime)
+  logger.info(lastActionTime)
+  logger.info(phaseEnd)
+  logger.info(gameEndTime)
   //logger.info(currentTime)
   //check to see if game is over or someone is out of time
   
@@ -110,5 +112,5 @@ async function gameRunner() {
     }
   }
 }
-//gameRunner()
+gameRunner()
 module.exports = { gameRunner }
