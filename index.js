@@ -76,6 +76,7 @@ async function parseMine(team){
   //otherwise, play the game
   } else {
       logger.info(`the game is still going until ${gameEndTime}`)
+      logger.info(`${gameRound}`)
       if (gameRound == 0 || gameRound == 2){
           logger.info(`gotta reinforce the defenses!`)
           //return 'reinforce'
