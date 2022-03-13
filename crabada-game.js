@@ -99,7 +99,7 @@ async function getMineInfo(mine_id) {
 async function getCrabsForHire() {
   
   //Inventory Reinforce
-  const inventory_url = `https://idle-game-subnet-test-api.crabada.com/public/idle/crabadas/can-join-team?user_address=${ADDRESS}`
+  const inventory_url = `https://idle-api.crabada.com/public/idle/crabadas/can-join-team?user_address=${ADDRESS}`
   logger.info(`[Crabada-game] Checking inventory for idle crabs`)
     try {
       const data = await fetch(inventory_url)
@@ -116,7 +116,7 @@ async function getCrabsForHire() {
       logger.error(error)
     }
   //Tavern Reinforce
-    const tavern_url = 'https://idle-game-subnet-test-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
+    const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
     logger.info(`[Crabada-game] Retrieving mercenary info from Tavern`)
 
     try {
