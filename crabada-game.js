@@ -132,14 +132,14 @@ async function getCrabsForHire() {
 async function chooseCrab(mine, listOfCrabsToHire) {
   let bestCrabs = []
   for (let i in listOfCrabsToHire) {
-    logger.info(listOfCrabsToHire[i])
+    //logger.info(listOfCrabsToHire[i])
     //let hasPrice = Object.prototype.hasOwnProperty.call(listOfCrabsToHire[i], 'price');
 
     //if (hasPrice){listOfCrabsToHire[i].price = await web3.utils.toWei('000000000000000001', 'ether')}
-    logger.info(listOfCrabsToHire[i])
-    logger.info(`${mine}`)
+    //logger.info(listOfCrabsToHire[i])
+    //logger.info(`${mine}`)
     const crabMeta = await calculateMR(mine, listOfCrabsToHire[i])
-    logger.info(crabMeta)
+    //logger.info(crabMeta)
     //if positive, add to best crabs, otherwise, next.
     if (Math.sign(crabMeta['value']) == 1 ) {
       bestCrabs.push(crabMeta)
@@ -158,11 +158,11 @@ async function calculateMR(mine, crab) {
   const BASE_CHANCE = 7.0
   const crabList = [...mine['result']['defense_team_info']]
   //logger.info(`${JSON.stringify(mine)}`)
-  logger.info(`${crabList[0].toString()}`)
+  //logger.info(`${crabList[0].toString()}`)
   let mpMod = getMPMod(crabList)
-  logger.info(`current MPmod = ${mpMod}`)
+  //logger.info(`current MPmod = ${mpMod}`)
   let bpMod = getBPMod(mine)
-  logger.info(`current BPmod = ${bpMod}`)
+  //logger.info(`current BPmod = ${bpMod}`)
   const currentMinersRevengeChance = BASE_CHANCE + mpMod + bpMod
 
   //add potential crab to the team for calculations
@@ -203,12 +203,12 @@ function getBPMod(mine) {
   //messes up if defense points are higher than attack
  
   let { defense_point, attack_point } = mine['result']
-  logger.info(`stringified mine.result.attack_point? ${JSON.stringify(mine['result']['attack_point'])}`)
-  logger.info(`stringified mine.result.defense_point? ${JSON.stringify(mine['result']['defense_point'])}`)
+  //logger.info(`stringified mine.result.attack_point? ${JSON.stringify(mine['result']['attack_point'])}`)
+  //logger.info(`stringified mine.result.defense_point? ${JSON.stringify(mine['result']['defense_point'])}`)
   let delta = attack_point - defense_point
-  logger.info(`Delta = ${delta}`)
+  //logger.info(`Delta = ${delta}`)
   let bpMod = 20 / Math.sqrt(delta)
-  logger.info(`bpMod = ${bpMod}`)
+  //logger.info(`bpMod = ${bpMod}`)
   return bpMod
 }
 
