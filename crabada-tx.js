@@ -110,7 +110,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
          gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
     }
     catch (error){
-        logger.log(`This is an error! ${error} |DONE`)
+        logger.log(error)
         //I should pass reinforce failed
     }
     let transaction = {}
