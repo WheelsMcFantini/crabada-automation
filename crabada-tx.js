@@ -112,6 +112,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
     catch (error){
         logger.log(error)
         //I should pass reinforce failed
+        return "failed"
     }
     let transaction = {}
     if (SWIMMER_NETWORK){

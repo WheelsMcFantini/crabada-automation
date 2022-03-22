@@ -221,6 +221,10 @@ async function reinforcementWrapper(mine) {
   if (source == "inventory"){
     logger.info(`[Crabada-game] selecting the following crab ${crabsForHire[0]}`);
       const signedReinforcement = await reinforceTeamFromInventory(mine['result']['game_id'], crabsForHire[0]['id']);
+      if (signedReinforcement == "failed"){
+        reinforcementWrapper(mine)
+        return
+      }
       const status = await sendTx(signedReinforcement);
       logger.info(`status: ${status}`)
       if (status == statusEnum.SUCCESS){
