@@ -128,8 +128,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
          gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
     }
     catch (error){
-        logger.log(error)
-        //I should pass reinforce failed
+        logger.log(`${JSON.stringify(error)}`)
         return "failed"
     }
     let transaction = {}
@@ -191,10 +190,11 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
     let gasEstimate
     try { 
          gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
-    }
-    catch (error){
-        logger.log(`This is an error! ${error} |DONE`)
-    }
+        }
+        catch (error){
+            logger.log(`${JSON.stringify(error)}`)
+            return "failed"
+        }
     let transaction = {}
     if (SWIMMER_NETWORK){
         transaction = {
@@ -236,11 +236,10 @@ async function estimateGas(to_address, from_address, transactionPayload, nonce){
         const gasEstimate = await web3.eth.estimateGas({'to': to_address, 'from': from_address, 'data': transactionPayload, 'nonce': nonce})
         return gasEstimate
     }
-    catch {
-        return 0
+    catch (error){
+        logger.info(`${JSON.stringify(error)}`)
+        return 
     }
-
-
 }
 
 
@@ -279,7 +278,7 @@ async function sendTx(signedTransaction){
         .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${JSON.stringify(receipt)}`)
         .on('error', function(error, reciept){
             //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-            logger.info(`[Crabada-game] ❗Something went wrong while processing your transaction. Error->${error}, Reciept->${reciept}`)
+            logger.info(`[Crabada-game] ❗Something went wrong while processing your transaction. Error->${JSON.stringify(error)}, Reciept->${reciept}`)
         })
         //resolves here
 })
