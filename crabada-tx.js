@@ -223,6 +223,28 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
 }
 
 /**
+* Function that estimates gas for a transaction
+* @author   Wheels
+* @param    {string} to_address    The recipient of the transaction
+* @param    {string} from_address The sender of the transaction
+* @param    {Object} transactionPayload The data contained in the transaction
+* @param    {number} nonce 
+* @return   {number}         Estimated Gas Limit
+*/
+async function estimateGas(to_address, from_address, transactionPayload, nonce){
+    try {
+        const gasEstimate = await web3.eth.estimateGas({'to': to_address, 'from': from_address, 'data': transactionPayload, 'nonce': nonce})
+        return gasEstimate
+    }
+    catch {
+        return 0
+    }
+
+
+}
+
+
+/**
 * Function that creates a generic transaction to be signed
 * @author   Wheels
 * @param    {Object} transactionPayload    The ID of the game to reinforce with a crab
