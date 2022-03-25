@@ -1,7 +1,7 @@
 /*eslint-env node, mocha*/
 /* eslint-disable no-unused-vars */
 //Contains each AVAX transaction needed for gameplay plus helper methods
-require('dotenv').config();
+//require('dotenv').config();
 //const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
 const SWIMMER_NETWORK = false
 const AVAX_API_URL = process.env.AVAX_API_URL
@@ -341,4 +341,5 @@ async function checkPriceAgainstLimit(crab){
 }
 
 
-module.exports = {startGame, reinforceTeam, reinforceTeamFromInventory, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, sendTx, statusEnum}
+
+module.exports = {startGame, reinforceTeam, endGame, convertNumberToPaddedHex, checkPriceAgainstLimit, reinforceTeamFromInventory, sendTx, statusEnum}
