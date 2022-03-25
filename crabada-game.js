@@ -3,12 +3,12 @@ const fetch = require('node-fetch')
 const { sendTx, checkPriceAgainstLimit, reinforceTeam, reinforceTeamFromInventory, statusEnum} = require('./crabada-tx.js')
 const IDLE_API = 'idle-api.crabada.com'
 //const IDLE_API = 'idle-game-subnet-test-api.crabada.com'
-const USER_MINES_PATH = '/public/idle/mines?user_address='
+//const USER_MINES_PATH = '/public/idle/mines?user_address='
 const MINE_PATH = '/public/idle/mine/'
 const TEAM_PATH = '/public/idle/teams?user_address='
 //const CAN_JOIN_PATH = '/public/idle/crabadas/can-join-team?user_address='
-const EXTRA_OPTS = '&page=1&status=open&limit=8'
-const NO_GAME_OPTS = '&page=1&limit=8'
+//const EXTRA_OPTS = '&page=1&status=open&limit=8'
+//const NO_GAME_OPTS = '&page=1&limit=8'
 const AVAX_API_URL = process.env.AVAX_API_URL
 const ADDRESS = process.env.ADDRESS
 const Web3 = require('web3');
@@ -16,10 +16,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 //const BN = web3.utils.BN
 const { format, createLogger, transports } = require('winston')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
-
-//do I want the tavern stuff in it's own file? 
-//Tavern file with choose crab, calculate MP, retry re
-//const loggingWinston = new LoggingWinston();
 
 const logger = createLogger({
   format: format.combine(
@@ -35,6 +31,12 @@ const logger = createLogger({
   ]
 });
 
+/**
+* Function that gets team data of a given address
+* @author   Wheels
+* @param    {String} address    Avalanche Address
+* @return   {Object}         Array of Team objects
+*/
 async function getTeamsAtAddress(address) {
   const url = `https://${IDLE_API}${TEAM_PATH}${address}`
   logger.info(`[Crabada-game] ${url}`)
@@ -51,36 +53,13 @@ async function getTeamsAtAddress(address) {
   return teamData['result']['data']
 }
 
-
-
-//currently supports a single game, function returns the Game_ID
-async function retrieveLatestGameInfo(address) {
-  const url = `https://${IDLE_API}${USER_MINES_PATH}${address}${EXTRA_OPTS}`
-  logger.info(`[Crabada-game] ${url}`)
-  logger.info(`[Crabada-game] Retrieving latest game status for ${address}: ${url}`)
-  let data = {}
-  try {
-    data = await fetch(url)
-    logger.info(data)
-  } catch (error) {
-    logger.error(error)
-  }
-  const gameData = await data.json()
-  if (gameData['result']['totalRecord'] == 0) {
-    logger.http(`[Crabada-game] no game: ${JSON.stringify(gameData['result'])}`)
-    const no_game_url = `https://${IDLE_API}${TEAM_PATH}${address}${NO_GAME_OPTS}`
-    const no_data = await fetch(no_game_url)
-    const no_gameData = await no_data.json()
-    logger.info(`[Crabada-game] ${no_gameData['result']['data'][0]['team_id']}`)
-    return { 'game_id': 'NO_GAME', 'team_id': `${no_gameData['result']['data'][0]['team_id']}` }
-  } else {
-    logger.info(`[Crabada-game] Latest mine ID: ${gameData['result']['data'][0]['game_id']}`)
-    return gameData['result']['data'][0]['game_id']
-  }
-}
-
+/**
+* Function that retrieves a given Mine object from the Crabada API
+* @author   Wheels
+* @param    {number} mine_id    Mine ID Number
+* @return   {Object}         Mine Object
+*/
 async function getMineInfo(mine_id) {
-
   const url = `https://${IDLE_API}${MINE_PATH}${mine_id}`
   logger.info(`[Crabada-game] Retrieving mine object for Mine: ${mine_id}`)
   try {
@@ -94,8 +73,11 @@ async function getMineInfo(mine_id) {
 
 }
 
-//might make sense to feed a type of sort in?
-//I search for: Cheapest, strongest, most skilled
+/**
+* Function that retrieves a given Mine object from the Crabada API
+* @author   Wheels
+* @return   {Object}         Array of useable crabs, source of crabs (inventory|tavern)
+*/
 async function getCrabsForHire() {
   
   //Inventory Reinforce
@@ -129,6 +111,13 @@ async function getCrabsForHire() {
     }
 }
 
+/**
+* Function that returns a sorted list of crabs by effectiveness and their location
+* @author   Wheels
+* @param  {Object} mine mine object
+* @param  {Array} listofCrabsToHire Array of crabs available to hire
+* @return   {Object}         Array of useable crabs sorted by effectiveness, source of crabs (inventory|tavern)
+*/
 async function chooseCrab(mine, listOfCrabsToHire) {
   let bestCrabs = []
   for (let i in listOfCrabsToHire) {
@@ -152,7 +141,13 @@ async function chooseCrab(mine, listOfCrabsToHire) {
   logger.info(`[Crabada-game] ${bestCrabs}`)
   return bestCrabs
 }
-
+/**
+* Function that evaluates a crab for value
+* @author   Wheels
+* @param  {Object} mine mine object
+* @param  {Object} crab single crab object
+* @return   {Object}         Object consisting of a crabs id, price and value
+*/
 async function calculateMR(mine, crab) {
   //First I Want to enumerate all the Crabs MP and figure out the modifier
   const BASE_CHANCE = 7.0
@@ -182,7 +177,13 @@ async function calculateMR(mine, crab) {
   return { 'id': crab['id'], 'price': crab['price'], 'value': difference / numTus }
 }
 
-//Takes a list of crabs as input and calculates the MP mod for Miners revenge
+
+/**
+* Function that calculates the MPmod for a given team of crabs. MPmod is (Average MP of the team’s crabs - Base MP value) *1.25
+* @author   Wheels
+* @param  {Object} crabList Array of 3-5 crabs
+* @return   {number}         The MPmod for crabList
+*/
 function getMPMod(crabList) {
   let total = 0
   //logger.info(crabList)
@@ -198,7 +199,12 @@ function getMPMod(crabList) {
   return (((total / crabList.length) - 56) * 1.25)
 }
 
-//takes a mine as input and calculates the BP closeness for Miners Revenge
+/**
+* Function that calculates the BP closeness for Miners Revenge. BPmod is 20/((Looter BP - Miner BP)^0.5)
+* @author   Wheels
+* @param  {Object} mine mine object
+* @return   {number}         The BPmod for mine
+*/
 function getBPMod(mine) {
   //messes up if defense points are higher than attack
  
@@ -213,7 +219,12 @@ function getBPMod(mine) {
 }
 
 
-
+/**
+* Function that is supposed to be a retry-able wrapper for the crab reinforcement transaction. Doesn't currently do what I need it to do.
+* @author   Wheels
+* @param  {Object} mine mine object
+* @return   
+*/
 async function reinforcementWrapper(mine) {
   
   const {crabsForHire, source} = await getCrabsForHire();
@@ -255,17 +266,5 @@ async function reinforcementWrapper(mine) {
     }  }
   
 }
-
-/* web3.eth.sendTransaction({from: '0x123...', data: '0x432...'})
-.once('sending', function(payload){ ... })
-.once('sent', function(payload){ ... })
-.once('transactionHash', function(hash){ ... })
-.once('receipt', function(receipt){ ... })
-.on('confirmation', function(confNumber, receipt, latestBlockHash){ ... })
-.on('error', function(error){ ... })
-.then(function(receipt){
- // will be fired once the receipt is mined
-});*/
-
 
 module.exports = { getTeamsAtAddress, getMineInfo, reinforcementWrapper }

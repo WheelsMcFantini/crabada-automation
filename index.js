@@ -20,10 +20,16 @@ const logger = createLogger({
   ]
 });
 
+/**
+* Function that analyzes team data, and if necessary retrieves and analyzes mine data to determine the next move. Currently makes those moves as well. 
+* @author   Wheels
+* @param    {Object} team    Mining Team object
+* @return   {string}         The necessary action given the mines state, (start|wait|reinforce|end)
+*/
 async function parseMine(team){
-  //given a team "object", check if a game is running, if not, try to start one.
   if (team['game_id'] == null){
       logger.info(`There does not appear to be an active mine for team ${team['team_id']}. We should start one.`)
+      //next 8 lines will be removed and called from a different function
       const signedStartGameTX = await startGame(team['team_id'])
       const status = await sendTx(signedStartGameTX);
       logger.info(`status: ${status}`)
@@ -57,7 +63,7 @@ async function parseMine(team){
   //if the game is over, end the game
   if (currentTime > gameEndTime) {
       logger.info(`the game should be over, the current time is ${currentTime} and that's greater than the end time of ${gameEndTime}`)
-      //return 'settle'
+      //next 8 lines will be removed and called from a different function
       const signedEndGameTX = await endGame(mine['result']['game_id'])
       const status = await sendTx(signedEndGameTX);
       logger.info(`status: ${status}`)
@@ -66,6 +72,7 @@ async function parseMine(team){
       } else if (status == statusEnum.FAIL){
           logger.info("TX fail")
       }
+      return 'end'
   }
   //if the turn has timed out, wait for game to end, not working for some reason
   else if (currentTime > phaseEnd){
@@ -82,7 +89,7 @@ async function parseMine(team){
       logger.info(`${gameRound}`)
       if (gameRound == 0 || gameRound == 2){
           logger.info(`gotta reinforce the defenses!`)
-          //return 'reinforce'
+          //next line will be removed and called from a different function
           await reinforcementWrapper(mine)
           return 'reinforce'
       } else if (gameRound == null || gameRound == 1 || gameRound == 3){
@@ -92,6 +99,10 @@ async function parseMine(team){
   }
 }
 
+/**
+* Function that is the entry point. Attempts to play the game for each team at a given address
+* @author   Wheels
+*/
 async function gameRunner() {
   //query address for teams, for each team, check status
   //based on strategy, run game

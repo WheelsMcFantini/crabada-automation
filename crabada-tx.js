@@ -36,7 +36,12 @@ const logger = createLogger({
 });
 exports.logger = logger;
 
-//HEX Helper
+/**
+* Function that converts a number into a 0 padded hexadecimal number
+* @author   Wheels
+* @param    {number} number    number to convert
+* @return   {bn}         0 padded hexadecimal bigNumber of length 64, with the prefix removed
+*/
 function convertNumberToPaddedHex(number){
     //takes a number, uses numberToHex, then pads the value to 64 
     const bn = web3.utils.toBN(number)
@@ -44,7 +49,12 @@ function convertNumberToPaddedHex(number){
     return web3.utils.stripHexPrefix(web3.utils.padLeft(`${web3.utils.numberToHex(bn)}`, 64))
 }
 
-//Game Functions
+/**
+* Function that creates and signs a startGame transaction
+* @author   Wheels
+* @param    {number} teamId    teamId of the team to start a game for
+* @return   {Object}         signed Transaction object, ready to be sent
+*/
 async function startGame(teamId) {    
     /*
     Function: startGame(uint256 teamId) ***
@@ -83,6 +93,14 @@ async function startGame(teamId) {
     return signedTx
 }
 
+/**
+* Function that creates and signs a reinforceTeam transaction to reinforce from the tavern
+* @author   Wheels
+* @param    {number} gameId    The ID of the game to reinforce with a crab
+* @param    {number} crabadaId    the ID of the crab to reinforce the game with
+* @param    {number} borrowPrice    The price in wei of the crab to reinforce with
+* @return   {Object}         signed Transaction object, ready to be sent
+*/
 async function reinforceTeam(gameId, crabadaId, borrowPrice) {
     /*
     Function: reinforceDefense(uint256 gameId, uint256 crabadaId, uint256 borrowPrice) ***
@@ -141,6 +159,13 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
     
 }
 
+/**
+* Function that creates and signs a reinforceTeamFromInventory transaction to reinforce from the inventory
+* @author   Wheels
+* @param    {number} gameId    The ID of the game to reinforce with a crab
+* @param    {number} crabadaId    the ID of the crab to reinforce the game with
+* @return   {Object}         signed Transaction object, ready to be sent
+*/
 async function reinforceTeamFromInventory(gameId, crabadaId) {
     /*
     Function: reinforceDefense(uint256 gameId, uint256 crabadaId, uint256 borrowPrice) ***
@@ -197,6 +222,12 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
     
 }
 
+/**
+* Function that creates a generic transaction to be signed
+* @author   Wheels
+* @param    {Object} transactionPayload    The ID of the game to reinforce with a crab
+* @return   {Object}         signed Transaction object, ready to be sent
+*/
 async function createTransaction(transactionPayload){
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
     const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': transactionPayload, 'nonce': nonce})
@@ -215,6 +246,11 @@ async function createTransaction(transactionPayload){
     return signedTx
 }
 
+/**
+* Function that sends a signed Transaction to be executed
+* @author   Wheels
+* @param    {Object} signedTransaction    A signed Transaction object
+*/
 async function sendTx(signedTransaction){
     const sendTxResult = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
         .on('transactionHash', function(hash){logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`)})
@@ -227,6 +263,12 @@ async function sendTx(signedTransaction){
 })
 }
 
+/**
+* Function that creates and signs an endGame transaction
+* @author   Wheels
+* @param    {number} gameId    gameId of the game to end
+* @return   {Object}         signed Transaction object, ready to be sent
+*/
 async function endGame(gameId) {
     /*
     Function: closeGame(uint256 gameId) ***
@@ -274,6 +316,12 @@ async function endGame(gameId) {
   
 }
 
+/**
+* Function that checks the price of a rental crab against a set limit
+* @author   Wheels
+* @param    {Object} crab    crab to price check
+* @return   {boolean}         true if the crab is within budget, false otherwise
+*/
 async function checkPriceAgainstLimit(crab){
     //logger.info("crab here:")
     //logger.info(crab)
