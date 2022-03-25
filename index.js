@@ -2,6 +2,7 @@
 const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
 require('dotenv').config();
+
 const ADDRESS = process.env.ADDRESS
 const ACTIVE = process.env.ACTIVE
 const { format, createLogger, transports } = require('winston')
@@ -123,5 +124,7 @@ async function gameRunner() {
     }
   }
 }
-gameRunner()
+
+//gameRunner()
 module.exports = { gameRunner }
+
