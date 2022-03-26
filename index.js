@@ -7,9 +7,6 @@ const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
 const parentLogger = require('./utilities.js')
 
 
-
-
-
 /**
 * Function that analyzes team data, and if necessary retrieves and analyzes mine data to determine the next move. Currently makes those moves as well. 
 * @author   Wheels
@@ -31,7 +28,7 @@ async function parseMine(team){
       }
       return 'start'
   }
-  logger.info(`[Crabada-game] Retrieving mine object for Mine: ${team['game_id']}`)
+  logger.info(`[Retrieving mine object for Mine: ${team['game_id']}`)
   let mine = await getMineInfo(team['game_id'])
 
   //is the game over? if time between last action and now is more than 30m, it's done
@@ -45,9 +42,9 @@ async function parseMine(team){
   //let gameRound = mine['result']['round'] nonSwimmer code!!!!!
   var phaseEnd = lastActionTime + 30*60;
   logger.debug(`The current time is: ${currentTime}`)
-  logger.debug(`The last action time is: ${lastActionTime}`,{ team: team['team_id'] }, { function: "parseMine" })
-  logger.debug(`The phase end time is: ${phaseEnd}`,{ team: team['team_id'] }, { function: "parseMine" })
-  logger.debug(`The game end time is: ${gameEndTime}`,{ team: team['team_id'] }, { function: "parseMine" })
+  logger.debug(`The last action time is: ${lastActionTime}`)
+  logger.debug(`The phase end time is: ${phaseEnd}`)
+  logger.debug(`The game end time is: ${gameEndTime}`)
   //logger.info(currentTime)
   //check to see if game is over or someone is out of time
   
@@ -57,7 +54,7 @@ async function parseMine(team){
       //next 8 lines will be removed and called from a different function
       const signedEndGameTX = await endGame(mine['result']['game_id'])
       const status = await sendTx(signedEndGameTX);
-      logger.info(`status: ${status}`,{ team: team['team_id'] }, { function: "parseMine" })
+      logger.info(`status: ${status}`)
       if (status == statusEnum.SUCCESS){
           logger.info("TX success")
       } else if (status == statusEnum.FAIL){
@@ -67,24 +64,24 @@ async function parseMine(team){
   }
   //if the turn has timed out, wait for game to end, not working for some reason
   else if (currentTime > phaseEnd){
-      logger.info(`the game should be over, more than 30 min have elapsed since the last action`,{ team: team['team_id'] }, { function: "parseMine" })
+      logger.info(`the game should be over, more than 30 min have elapsed since the last action`)
       return 'wait'
   } 
   //if the last turn has been taken, wait for game to end
   else if (gameRound == 4) {
-      logger.info(`the game is essentially over, the last turn has been taken`,{ team: team['team_id'] }, { function: "parseMine" })
+      logger.info(`the game is essentially over, the last turn has been taken`)
       return 'wait'
   //otherwise, play the game
   } else {
-      logger.info(`the game is still going until ${gameEndTime}`,{ team: team['team_id'] }, { function: "parseMine" })
-      logger.info(`${gameRound}`, { function: "parseMine" })
+      logger.info(`the game is still going until ${gameEndTime}`)
+      logger.info(`${gameRound}`)
       if (gameRound == 0 || gameRound == 2){
-          logger.info(`gotta reinforce the defenses!`,{ team: team['team_id'] }, { function: "parseMine" })
+          logger.info(`gotta reinforce the defenses!`)
           //next line will be removed and called from a different function
           await reinforcementWrapper(mine)
           return 'reinforce'
       } else if (gameRound == null || gameRound == 1 || gameRound == 3){
-          logger.info(`waiting for opponent to go`,{ team: team['team_id'] }, { function: "parseMine" })
+          logger.info(`waiting for opponent to go`)
           return 'wait'
       }
   }
@@ -116,6 +113,7 @@ async function gameRunner() {
   }
 }
 
-//gameRunner()
+
+
 module.exports = { gameRunner }
 
