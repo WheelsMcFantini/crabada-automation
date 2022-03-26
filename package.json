@@ -6,7 +6,6 @@
   "author": "Wheels McFantini",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/logging-winston": "^4.2.2",
     "dotenv": "^10.0.0",
     "node-fetch": "2",
     "web3": "^1.6.1",

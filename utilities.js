@@ -1,5 +1,4 @@
 const { format, createLogger, transports } = require('winston')
-const {LoggingWinston} = require('@google-cloud/logging-winston');
 const { combine, splat, timestamp, printf } = format;
 
 const myFormat = printf( ({ level, message, timestamp , ...metadata}) => {
@@ -10,7 +9,6 @@ const myFormat = printf( ({ level, message, timestamp , ...metadata}) => {
   return msg
 });
 
-const loggingWinston = new LoggingWinston();
 
 const parentLogger = createLogger({
     level: 'debug',
@@ -22,7 +20,6 @@ const parentLogger = createLogger({
   ),
   transports: [
     new transports.Console({ level: 'debug' }),
-    loggingWinston,
     //new transports.File({ filename: 'combined.log' })
   ]
 });
