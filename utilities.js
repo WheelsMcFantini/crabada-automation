@@ -1,17 +1,26 @@
 const { format, createLogger, transports } = require('winston')
+const { combine, splat, timestamp, printf } = format;
 
-const logger = createLogger({
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss'
-    }),
-    format.errors({ stack: true }),
-    format.splat(),
-    format.json()),
+const myFormat = printf( ({ level, message, timestamp , ...metadata}) => {
+  let msg = `${timestamp} [${level}] : ${message} `  
+  if(metadata) {
+	msg += JSON.stringify(metadata)
+  }
+  return msg
+});
+
+const parentLogger = createLogger({
+    level: 'debug',
+    format: combine(
+        format.colorize(),
+        splat(),
+        timestamp(),
+        myFormat
+  ),
   transports: [
-    new transports.Console(),
+    new transports.Console({ level: 'debug' }),
     //new transports.File({ filename: 'combined.log' })
   ]
 });
 
-module.exports = logger 
+module.exports = parentLogger 

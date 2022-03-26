@@ -3,14 +3,15 @@
 //Contains each AVAX transaction needed for gameplay plus helper methods
 require('dotenv').config();
 const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
-const SWIMMER_NETWORK = true
+const SWIMMER_NETWORK = false
 //const AVAX_API_URL = process.env.AVAX_API_URL//swimmer
 //const PRIVATE_KEY = process.env.PRIVATE_KEY
 //const ADDRESS = process.env.ADDRESS
 //const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT//swimmer
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
-const logger = require('./utilities.js')
+const parentLogger = require('./utilities.js')
+const logMetadata = { file: 'crabada-tx.js' , address: ADDRESS }
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 const statusEnum = Object.freeze({
@@ -41,6 +42,8 @@ function convertNumberToPaddedHex(number){
 * @return   {Object}         signed Transaction object, ready to be sent
 */
 async function startGame(teamId) {    
+    const logger = parentLogger.child({ function: "startGame" }, logMetadata);
+    logger.debug(`Recieved input teamId: ${teamId}`)
     /*
     Function: startGame(uint256 teamId) ***
 
@@ -51,8 +54,10 @@ async function startGame(teamId) {
     const startGameData = `0xe5ed1d59${teamId}`
     //const startGameData = '0xe5ed1d5900000000000000000000000000000000000000000000000000000000000013B4'
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
+    logger.debug(`Nonce: ${nonce}`)
     const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': startGameData, 'nonce': nonce})
-    
+    logger.debug(`gasEstimate: ${gasEstimate}`)
+
     let transaction = {}
     if (SWIMMER_NETWORK){
         transaction = {
@@ -87,6 +92,10 @@ async function startGame(teamId) {
 * @return   {Object}         signed Transaction object, ready to be sent
 */
 async function reinforceTeam(gameId, crabadaId, borrowPrice) {
+    const logger = parentLogger.child({ function: "reinforceTeam" }, logMetadata);
+    logger.debug(`Recieved input gameId: ${gameId}`)
+    logger.debug(`Recieved input crabadaId: ${crabadaId}`)
+    logger.debug(`Recieved input borrowPrice: ${borrowPrice}`)
     /*
     Function: reinforceDefense(uint256 gameId, uint256 crabadaId, uint256 borrowPrice) ***
 
@@ -107,10 +116,11 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 
     const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
-    logger.info("estimating gas")
+    logger.debug(`Nonce: ${nonce}`)
     let gasEstimate
     try { 
          gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
+         logger.debug(`gasEstimate: ${gasEstimate}`)
     }
     catch (error){
         logger.log(`${JSON.stringify(error)}`)
@@ -151,6 +161,9 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
 * @return   {Object}         signed Transaction object, ready to be sent
 */
 async function reinforceTeamFromInventory(gameId, crabadaId) {
+    const logger = parentLogger.child({ function: "reinforceTeamFromInventory" }, logMetadata);
+    logger.debug(`Recieved input gameId: ${gameId}`)
+    logger.debug(`Recieved input crabadaId: ${crabadaId}`)
     /*
     Function: reinforceDefense(uint256 gameId, uint256 crabadaId, uint256 borrowPrice) ***
 
@@ -171,10 +184,11 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
 
     const reinforceGameData = `0x08873bfb${gameId}${crabadaId}${borrowPrice}`
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
-    logger.info("estimating gas")
+    logger.debug(`Nonce: ${nonce}`)
     let gasEstimate
     try { 
          gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': reinforceGameData, 'nonce': nonce})
+         logger.debug(`gasEstimate: ${gasEstimate}`)
         }
         catch (error){
             logger.log(`${JSON.stringify(error)}`)
@@ -217,6 +231,7 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
 * @return   {number}         Estimated Gas Limit
 */
 async function estimateGas(to_address, from_address, transactionPayload, nonce){
+    const logger = parentLogger.child({ function: "estimateGas" }, logMetadata);
     try {
         const gasEstimate = await web3.eth.estimateGas({'to': to_address, 'from': from_address, 'data': transactionPayload, 'nonce': nonce})
         return gasEstimate
@@ -235,7 +250,9 @@ async function estimateGas(to_address, from_address, transactionPayload, nonce){
 * @return   {Object}         signed Transaction object, ready to be sent
 */
 async function createTransaction(transactionPayload){
+    const logger = parentLogger.child({ function: "createTransaction" }, logMetadata);
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
+    logger.debug(`Nonce: ${nonce}`)
     const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': transactionPayload, 'nonce': nonce})
 
     const transaction = {
@@ -258,12 +275,14 @@ async function createTransaction(transactionPayload){
 * @param    {Object} signedTransaction    A signed Transaction object
 */
 async function sendTx(signedTransaction){
+    const logger = parentLogger.child({ function: "sendTx" }, logMetadata);
+
     const sendTxResult = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
-        .on('transactionHash', function(hash){logger.info(`[Crabada-game] 🎉 The hash of your transaction is: ${hash}`)})
-        .on('receipt', function(receipt){logger.info(`[Crabada-game] Got reciept ${JSON.stringify(receipt)}`)
+        .on('transactionHash', function(hash){logger.info(`🎉 The hash of your transaction is: ${hash}`)})
+        .on('receipt', function(receipt){logger.info(`Successfully mined transaction for ${receipt['cumulativeGasUsed']*receipt['effectiveGasPrice']} Gwei`);logger.debug(`Reciept: ${JSON.stringify(receipt)}`)
         .on('error', function(error, reciept){
             //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-            logger.info(`[Crabada-game] ❗Something went wrong while processing your transaction. Error->${JSON.stringify(error)}, Reciept->${reciept}`)
+            logger.info(`❗Something went wrong while processing your transaction. Error->${JSON.stringify(error)}, Reciept->${reciept}`)
         })
         //resolves here
 })
@@ -276,6 +295,8 @@ async function sendTx(signedTransaction){
 * @return   {Object}         signed Transaction object, ready to be sent
 */
 async function endGame(gameId) {
+    const logger = parentLogger.child({ function: "endGame" }, logMetadata);
+    logger.debug(`Recieved input gameId: ${gameId}`)
     /*
     Function: closeGame(uint256 gameId) ***
 
@@ -291,12 +312,12 @@ async function endGame(gameId) {
     //logger.info(closeGameData)
 
     //const closeGameData = '0x2d6ef310000000000000000000000000000000000000000000000000000000000003f870'
-    logger.info(ADDRESS)
+    //logger.info(ADDRESS)
 
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
+    logger.debug(`Nonce: ${nonce}`)
     const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': closeGameData, 'nonce': nonce})
-    //logger.info(gameId)
-    //logger.info(gasEstimate)
+    logger.debug(`gasEstimate: ${gasEstimate}`)
     //logger.info(closeGameData)
     let transaction = {}
     if (SWIMMER_NETWORK){
@@ -331,6 +352,7 @@ async function endGame(gameId) {
 * @return   {boolean}         true if the crab is within budget, false otherwise
 */
 async function checkPriceAgainstLimit(crab){
+    const logger = parentLogger.child({ function: "checkPriceAgainstLimit" }, logMetadata);
     //logger.info("crab here:")
     //logger.info(crab)
     const bn = web3.utils.toBN(crab['price'])
@@ -338,12 +360,12 @@ async function checkPriceAgainstLimit(crab){
     //logger.info(await web3.utils.fromWei(bn, 'Ether'))
     //logger.info(await web3.utils.fromWei(priceCap, 'Ether'))
     if (bn.lte(priceCap)){
-        logger.info(`[Crabada-transaction] ${bn} is less than ${priceCap}`)
-        logger.info("[Crabada-transaction] renting crab?")
+        logger.debug(`${bn} is less than ${priceCap}`)
+        logger.info("Renting crab")
         return true
     } else {
-        logger.info(`[Crabada-transaction] ${bn} is greater than ${priceCap}`)
-        logger.info("[Crabada-transaction] Crabs too expensive! Try again later")
+        logger.debug(`${bn} is greater than ${priceCap}`)
+        logger.info("Crabs too expensive! Try again later")
         return false
     }
 }

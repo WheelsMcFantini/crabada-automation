@@ -1,19 +1,25 @@
 /*eslint-env node, mocha */
-const fetch = require('node-fetch')
-const { sendTx, checkPriceAgainstLimit, reinforceTeam, reinforceTeamFromInventory, statusEnum} = require('./crabada-tx.js')
-const logger = require('./utilities.js')
-//const IDLE_API = 'idle-api.crabada.com'
-const IDLE_API = 'idle-game-subnet-test-api.crabada.com'
-//const USER_MINES_PATH = '/public/idle/mines?user_address='
+require('dotenv').config();
+const AVAX_API_URL = process.env.AVAX_API_URL
+const ADDRESS = process.env.ADDRESS
 const MINE_PATH = '/public/idle/mine/'
 const TEAM_PATH = '/public/idle/teams?user_address='
+//const IDLE_API = 'idle-game-subnet-test-api.crabada.com'
+const IDLE_API = 'idle-api.crabada.com'
+const Web3 = require('web3');
+const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
+const fetch = require('node-fetch')
+const { sendTx, checkPriceAgainstLimit, reinforceTeam, reinforceTeamFromInventory, statusEnum} = require('./crabada-tx.js')
+const parentLogger = require('./utilities.js')
+const logMetadata = { file: 'crabada-game.js' , address: ADDRESS }
+
+
+//const USER_MINES_PATH = '/public/idle/mines?user_address='
+
 //const CAN_JOIN_PATH = '/public/idle/crabadas/can-join-team?user_address='
 //const EXTRA_OPTS = '&page=1&status=open&limit=8'
 //const NO_GAME_OPTS = '&page=1&limit=8'
-const AVAX_API_URL = process.env.AVAX_API_URL
-const ADDRESS = process.env.ADDRESS
-const Web3 = require('web3');
-const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
+
 //const BN = web3.utils.BN
 
 /**
@@ -23,9 +29,11 @@ const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 * @return   {Object}         Array of Team objects
 */
 async function getTeamsAtAddress(address) {
+  const logger = parentLogger.child({ function: "getTeamsAtAddress" }, logMetadata)
+  logger.debug(`Recieved input address: ${address}`)
+
   const url = `https://${IDLE_API}${TEAM_PATH}${address}`
-  logger.info(`[Crabada-game] ${url}`)
-  logger.info(`[Crabada-game] Retrieving teams at ${address}: ${url}`)
+  logger.info(`Fetching teams at URL: ${url}`)
   let data = {}
   try {
     data = await fetch(url)
@@ -45,15 +53,18 @@ async function getTeamsAtAddress(address) {
 * @return   {Object}         Mine Object
 */
 async function getMineInfo(mine_id) {
+  const logger = parentLogger.child({ function: "getMineInfo" }, logMetadata)
+  logger.debug(`Recieved input Mine ID: ${mine_id}`)
+
   const url = `https://${IDLE_API}${MINE_PATH}${mine_id}`
-  logger.info(`[Crabada-game] Retrieving mine object for Mine: ${mine_id}`)
   try {
+    logger.info(`fetching mine info at URL: ${url}`)
     const data = await fetch(url)
-    logger.info(data)
+    logger.info(`Got a successful response status: ${data.status}`)
     const mine = await data.json()
     return mine
   } catch (error) {
-    logger.error(error)
+    logger.warn(JSON.stringify(error))
   }
 
 }
@@ -64,23 +75,25 @@ async function getMineInfo(mine_id) {
 * @return   {Object}         Array of useable crabs, source of crabs (inventory|tavern)
 */
 async function getCrabsForHire() {
-  
+  const logger = parentLogger.child({ function: "getCrabsForHire" }, logMetadata)
+
   //Inventory Reinforce
   const inventory_url = `https://idle-api.crabada.com/public/idle/crabadas/can-join-team?user_address=${ADDRESS}`
-  logger.info(`[Crabada-game] Checking inventory for idle crabs`)
+  logger.info(`Checking inventory for idle crabs`)
     try {
+      logger.info(`fetching inventory info at URL: ${inventory_url}`)
       const data = await fetch(inventory_url)
-      logger.info(data)
+      logger.info(`Got a successful response status: ${data.status}`)
       const inventory = await data.json()
       //if there's crabs, create and return the rentable ones
       //if there's no crabs, keep going
       if (inventory['result']['totalRecord'] > 0){
-        logger.info(`[Crabada-game] Idle crabs available for hire`)
-        logger.info(inventory['result']['data'])
+        logger.info(`Idle crabs available for hire!`)
+        logger.debug(`Idle crabs available for hire: ${JSON.stringify(inventory['result']['data'])}`)
         return {crabsForHire: inventory['result']['data'], source: "inventory"}
       }
     }  catch (error) {
-      logger.error(error)
+      logger.error(JSON.stringify(error))
     }
   //Tavern Reinforce
     const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
@@ -92,7 +105,7 @@ async function getCrabsForHire() {
       const tavern = await data.json()
       return {crabsForHire: tavern['result']['data'], source: "tavern"}
     }  catch (error) {
-      logger.error(error)
+      logger.error(JSON.stringify(error))
     }
 }
 
@@ -104,6 +117,10 @@ async function getCrabsForHire() {
 * @return   {Object}         Array of useable crabs sorted by effectiveness, source of crabs (inventory|tavern)
 */
 async function chooseCrab(mine, listOfCrabsToHire) {
+  const logger = parentLogger.child({ function: "chooseCrab" }, logMetadata)
+  logger.debug(`Recieved mine input: ${JSON.stringify(mine)}`)
+  logger.debug(`Recieved listOfCrabsToHire input: ${JSON.stringify(listOfCrabsToHire)}`)
+
   let bestCrabs = []
   for (let i in listOfCrabsToHire) {
     //logger.info(listOfCrabsToHire[i])
@@ -134,6 +151,10 @@ async function chooseCrab(mine, listOfCrabsToHire) {
 * @return   {Object}         Object consisting of a crabs id, price and value
 */
 async function calculateMR(mine, crab) {
+  const logger = parentLogger.child({ function: "calculateMR" }, logMetadata)
+  logger.debug(`Recieved mine input: ${JSON.stringify(mine)}`)
+  logger.debug(`Recieved crab input: ${JSON.stringify(crab)}`)
+
   //First I Want to enumerate all the Crabs MP and figure out the modifier
   const BASE_CHANCE = 7.0
   const crabList = [...mine['result']['defense_team_info']]
@@ -170,6 +191,9 @@ async function calculateMR(mine, crab) {
 * @return   {number}         The MPmod for crabList
 */
 function getMPMod(crabList) {
+  const logger = parentLogger.child({ function: "getMPMod" }, logMetadata)
+  logger.debug(`Recieved crabList input: ${crabList}`)
+
   let total = 0
   //logger.info(crabList)
   for (let crab in crabList) {
@@ -191,15 +215,17 @@ function getMPMod(crabList) {
 * @return   {number}         The BPmod for mine
 */
 function getBPMod(mine) {
+  const logger = parentLogger.child({ function: "getBPMod" }, logMetadata)
+  logger.debug(`Recieved Mine Data ${JSON.stringify(mine)}`)
+
   //messes up if defense points are higher than attack
- 
   let { defense_point, attack_point } = mine['result']
-  //logger.info(`stringified mine.result.attack_point? ${JSON.stringify(mine['result']['attack_point'])}`)
-  //logger.info(`stringified mine.result.defense_point? ${JSON.stringify(mine['result']['defense_point'])}`)
+  logger.debug(`Looter BP: ${JSON.stringify(mine['result']['attack_point'])}`)
+  logger.debug(`Miner BP: ${JSON.stringify(mine['result']['defense_point'])}`)
   let delta = attack_point - defense_point
-  //logger.info(`Delta = ${delta}`)
+  logger.debug(`BP Delta = ${delta}`)
   let bpMod = 20 / Math.sqrt(delta)
-  //logger.info(`bpMod = ${bpMod}`)
+  logger.debug(`bpMod = ${bpMod}`)
   return bpMod
 }
 
@@ -217,11 +243,14 @@ function getBPMod(mine) {
 * @return   
 */
 async function reinforcementWrapper(mine) {
-  
+  const logger = parentLogger.child({ function: "reinforcementWrapper" }, logMetadata)
+  logger.debug(`Recieved Mine Data ${JSON.stringify(mine)}`)
+
   const {crabsForHire, source} = await getCrabsForHire();
   //determine whether to reinforce from inv or tavern
   if (source == "inventory"){
-    logger.info(`[Crabada-game] selecting the following crab ${crabsForHire[0]}`);
+    logger.debug(`Crab to reinforce with: ${JSON.stringify(crabsForHire[0])}`);
+    logger.info(`Reinforcing with Crab #${crabsForHire[0]['id']} for a cost of 0 TUS`)
       const signedReinforcement = await reinforceTeamFromInventory(mine['result']['game_id'], crabsForHire[0]['id']);
       if (signedReinforcement == "failed"){
         reinforcementWrapper(mine)
@@ -240,7 +269,8 @@ async function reinforcementWrapper(mine) {
   const crabs = await chooseCrab(mine, crabsForHire);
   //crabs is now an ordered list of the best crabs instead of 1 crab
     if (await checkPriceAgainstLimit(crabs[0])) {
-      logger.info(`[Crabada-game] selecting the following crab ${crabs[0]}`);
+    logger.debug(`Crab to reinforce with: ${JSON.stringify(crabs[0])}`);
+    logger.info(`Reinforcing with Crab #${crabs[0]['id']} for a cost of ${crabs[0]['price']} TUS`)
       const signedReinforcement = await reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price']);
       const status = await sendTx(signedReinforcement);
       logger.info(`status: ${status}`)
@@ -252,7 +282,7 @@ async function reinforcementWrapper(mine) {
         logger.info("Crab locked")
       }
     } else {
-        logger.warn("[Crabada-game] Crab rental is a no-go. Either the crab was too expensive or a different error occured.");
+        logger.warn("Crab rental is a no-go. Either the crab was too expensive or a different error occured.");
         return 'fail';
     }  }
   
