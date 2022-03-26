@@ -1,16 +1,16 @@
 /*eslint-env node, mocha*/
 /* eslint-disable no-unused-vars */
 //Contains each AVAX transaction needed for gameplay plus helper methods
-//require('dotenv').config();
-//const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
-const SWIMMER_NETWORK = false
-const AVAX_API_URL = process.env.AVAX_API_URL
-const PRIVATE_KEY = process.env.PRIVATE_KEY
-const ADDRESS = process.env.ADDRESS
-const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT
+require('dotenv').config();
+const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
+const SWIMMER_NETWORK = true
+//const AVAX_API_URL = process.env.AVAX_API_URL//swimmer
+//const PRIVATE_KEY = process.env.PRIVATE_KEY
+//const ADDRESS = process.env.ADDRESS
+//const CRABADA_CONTRACT = process.env.CRABADA_CONTRACT//swimmer
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
-const { format, createLogger, transports } = require('winston')
+const logger = require('./utilities.js')
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 const statusEnum = Object.freeze({
@@ -19,22 +19,7 @@ const statusEnum = Object.freeze({
     CRAB_LOCKED: 2
   })
 
-//const loggingWinston = new LoggingWinston();
 
-const logger = createLogger({
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss'
-    }),
-    format.errors({ stack: true }),
-    format.splat(),
-    format.json()),
-    transports: [
-    new transports.Console(),
-    //new transports.File({ filename: 'combined.log' })
-  ]
-});
-exports.logger = logger;
 
 /**
 * Function that converts a number into a 0 padded hexadecimal number
@@ -306,6 +291,8 @@ async function endGame(gameId) {
     //logger.info(closeGameData)
 
     //const closeGameData = '0x2d6ef310000000000000000000000000000000000000000000000000000000000003f870'
+    logger.info(ADDRESS)
+
     const nonce = await web3.eth.getTransactionCount(ADDRESS, 'latest'); // nonce starts counting from 0
     const gasEstimate = await web3.eth.estimateGas({'to': CRABADA_CONTRACT, 'from': ADDRESS, 'data': closeGameData, 'nonce': nonce})
     //logger.info(gameId)

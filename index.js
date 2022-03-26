@@ -1,25 +1,12 @@
 /*eslint-env node, mocha */
 const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
+const logger = require('./utilities.js')
 require('dotenv').config();
 
 const ADDRESS = process.env.ADDRESS
 const ACTIVE = process.env.ACTIVE
-const { format, createLogger, transports } = require('winston')
 
-const logger = createLogger({
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss'
-    }),
-    format.errors({ stack: true }),
-    format.splat(),
-    format.json()),
-  transports: [
-    new transports.Console(),
-    //new transports.File({ filename: 'combined.log' })
-  ]
-});
 
 /**
 * Function that analyzes team data, and if necessary retrieves and analyzes mine data to determine the next move. Currently makes those moves as well. 
@@ -51,8 +38,8 @@ async function parseMine(team){
   let now = Date.now()
   //logger.info(now)
   let currentTime = Math.round(now/1000)
-  //let gameRound = mine['result']['game_round'] Swimmer code!!!!!
-  let gameRound = mine['result']['round']
+  let gameRound = mine['result']['game_round'] 
+  //let gameRound = mine['result']['round'] nonSwimmer code!!!!!
   var phaseEnd = lastActionTime + 30*60;
   logger.info(currentTime)
   logger.info(lastActionTime)
@@ -125,6 +112,6 @@ async function gameRunner() {
   }
 }
 
-//gameRunner()
+gameRunner()
 module.exports = { gameRunner }
 

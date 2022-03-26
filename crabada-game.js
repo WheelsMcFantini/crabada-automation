@@ -1,8 +1,9 @@
 /*eslint-env node, mocha */
 const fetch = require('node-fetch')
 const { sendTx, checkPriceAgainstLimit, reinforceTeam, reinforceTeamFromInventory, statusEnum} = require('./crabada-tx.js')
-const IDLE_API = 'idle-api.crabada.com'
-//const IDLE_API = 'idle-game-subnet-test-api.crabada.com'
+const logger = require('./utilities.js')
+//const IDLE_API = 'idle-api.crabada.com'
+const IDLE_API = 'idle-game-subnet-test-api.crabada.com'
 //const USER_MINES_PATH = '/public/idle/mines?user_address='
 const MINE_PATH = '/public/idle/mine/'
 const TEAM_PATH = '/public/idle/teams?user_address='
@@ -14,22 +15,6 @@ const ADDRESS = process.env.ADDRESS
 const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 //const BN = web3.utils.BN
-const { format, createLogger, transports } = require('winston')
-//const {LoggingWinston} = require('@google-cloud/logging-winston');
-
-const logger = createLogger({
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss'
-    }),
-    format.errors({ stack: true }),
-    format.splat(),
-    format.json()),
-  transports: [
-    new transports.Console(),
-    //new transports.File({ filename: 'combined.log' })
-  ]
-});
 
 /**
 * Function that gets team data of a given address
@@ -218,6 +203,12 @@ function getBPMod(mine) {
   return bpMod
 }
 
+/**
+* Function that determines whether to reinforce from inventory or the tavern
+* @author   Wheels
+* @param  {Object} mine mine object
+* @return   
+*/
 
 /**
 * Function that is supposed to be a retry-able wrapper for the crab reinforcement transaction. Doesn't currently do what I need it to do.
