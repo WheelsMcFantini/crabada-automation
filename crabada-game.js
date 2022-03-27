@@ -58,7 +58,7 @@ async function getMineInfo(mine_id) {
 
   const url = `https://${IDLE_API}${MINE_PATH}${mine_id}`
   try {
-    logger.info(`fetching mine info at URL: ${url}`)
+    logger.info(`Fetching mine info at URL: ${url}`)
     const data = await fetch(url)
     logger.info(`Got a successful response status: ${data.status}`)
     const mine = await data.json()
@@ -81,7 +81,7 @@ async function getCrabsForHire() {
   const inventory_url = `https://idle-api.crabada.com/public/idle/crabadas/can-join-team?user_address=${ADDRESS}`
   logger.info(`Checking inventory for idle crabs`)
     try {
-      logger.info(`fetching inventory info at URL: ${inventory_url}`)
+      logger.info(`Fetching inventory info at URL: ${inventory_url}`)
       const data = await fetch(inventory_url)
       logger.info(`Got a successful response status: ${data.status}`)
       const inventory = await data.json()
@@ -97,7 +97,7 @@ async function getCrabsForHire() {
     }
   //Tavern Reinforce
     const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
-    logger.info(`[Crabada-game] Retrieving mercenary info from Tavern`)
+    logger.info(`Retrieving mercenary info from Tavern`)
 
     try {
       const data = await fetch(tavern_url)
