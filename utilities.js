@@ -11,7 +11,7 @@ const myFormat = printf( ({ level, message, timestamp , ...metadata}) => {
 
 
 const parentLogger = createLogger({
-    level: 'debug',
+    level: 'info',
     format: combine(
         format.uncolorize(),
         splat(),
