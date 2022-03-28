@@ -28,9 +28,9 @@ async function parseMine(team){
       }
       return 'start'
   }
-  logger.info(`[Retrieving mine object for Mine: ${team['game_id']}`)
+  logger.info(`Retrieving mine object for Mine: ${team['game_id']}`)
   let mine = await getMineInfo(team['game_id'])
-
+  logger.debug(`Got Mine: ${JSON.stringify(mine)}`)
   //is the game over? if time between last action and now is more than 30m, it's done
   let lastAction = mine['result']['process'][mine['result']['process'].length - 1]
   let lastActionTime = lastAction['transaction_time']
