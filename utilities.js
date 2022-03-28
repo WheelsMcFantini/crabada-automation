@@ -1,5 +1,6 @@
 const { format, createLogger, transports } = require('winston')
 const { combine, splat, timestamp, printf } = format;
+const LEVEL = process.env.LEVEL
 
 const myFormat = printf( ({ level, message, timestamp , ...metadata}) => {
   let msg = `${timestamp} [${level}] : ${message} `  
@@ -11,7 +12,7 @@ const myFormat = printf( ({ level, message, timestamp , ...metadata}) => {
 
 
 const parentLogger = createLogger({
-    level: 'info',
+    level: LEVEL,
     format: combine(
         format.uncolorize(),
         splat(),
