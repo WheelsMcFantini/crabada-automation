@@ -2,6 +2,7 @@
 require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const ACTIVE = process.env.ACTIVE
+const BREEDING = true
 const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
 const parentLogger = require('./utilities.js')
@@ -18,6 +19,10 @@ async function parseMine(team){
   if (team['game_id'] == null){
       logger.info(`There does not appear to be an active mine for team ${team['team_id']}. We should start one.`)
       //next 8 lines will be removed and called from a different function
+      if (BREEDING){
+        logger.info(`Breeding mode enabled, starting games forbidden`)
+        return 'wait'
+      }
       const signedStartGameTX = await startGame(team['team_id'])
       const status = await sendTx(signedStartGameTX);
       logger.info(`status: ${status}`,{ team: team['team_id'] })
