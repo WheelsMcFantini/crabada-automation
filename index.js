@@ -2,7 +2,7 @@
 require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
 const ACTIVE = process.env.ACTIVE
-const BREEDING = true
+const BREEDING = process.env.BREEDING
 const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
 const parentLogger = require('./utilities.js')
