@@ -1,146 +1,124 @@
-const { retrieveLatestGameInfo, getMineInfo, getCurrentStage, reinforcementWrapper } = require('./crabada-game.js')
-const { startGame, endGame } = require('./crabada-tx.js')
-//require('dotenv').config();
+/*eslint-env node, mocha */
+require('dotenv').config();
 const ADDRESS = process.env.ADDRESS
-const PRIVATE_KEY = process.env.PRIVATE_KEY
 const ACTIVE = process.env.ACTIVE
-const { format, createLogger, transports } = require('winston')
-
-const logger = createLogger({
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss'
-    }),
-    format.errors({ stack: true }),
-    format.splat(),
-    format.json()),
-    transports: [
-    new transports.Console(),
-    //new transports.File({ filename: 'combined.log' })
-  ]
-});
+const BREEDING = process.env.BREEDING
+const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
+const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
+const parentLogger = require('./utilities.js')
 
 
-
-function phaseLogger(gameState) {
-  let phase = gameState[gameState.length - 1]
-  txTime = new Date(phase['transaction_time'] * 1000)
-  switch (phase['action']) {
-    case 'create-game':
-      console.log(`[Game-Runner] Displayed Phase: Start`)
-      console.log(`[Game-Runner] Phase start time: ${txTime}`)
-      console.log(`[Game-Runner] Next operation: Await Attack or Close Game`)
-      break
-    case 'attack':
-      console.log(`[Game-Runner] Most Recent Action was attack`)
-      console.log(`[Game-Runner] Phase start time: ${txTime}`)
-      console.log(`[Game-Runner] Bot will attempt to reinforce`)
-      break
-    case 'reinforce-attack':
-      console.log(`[Game-Runner] Most Recent Action was reinforce-attack`)
-      console.log(`[Game-Runner] Phase start time: ${txTime}`)
-      console.log(`[Game-Runner] Bot will attempt to reinforce`)
-      break
-    case 'reinforce-defense':
-      console.log(`[Game-Runner] Current Phase: Reinforce 1`)
-      console.log(`[Game-Runner] Phase start time: ${txTime}`)
-      console.log(`[Game-Runner] Next operation: Attack 2`)
-      break
-    case 'settle':
-      console.log(`[Game-Runner] Current Phase: Settle`)
-      console.log(`[Game-Runner] Phase start time: ${txTime}`)
-      console.log(`[Game-Runner] Next operation: Close Game`)
-      break
-  }
-}
-
-
-async function playGame(mine) {
-  const gameState = mine['result']['process']
-  let phase = gameState[gameState.length - 1]
-  //console.log(gameState[gameState.length - 1]['action'])
-  logger.info(`[Game-runner] current phase: ${phase['action']}`)
-  switch (phase['action']) {
-    case 'create-game':
-      //phaseLogger(gameState)
-      //wait for opponent to go
-      break;
-    case 'attack': //means they have just attacked me
-    case 'reinforce-attack': //means they have just reinforced their attack
-      if (gameState.length > 4){
-        //console.log("no need to reinforce a third time, wait for settle")
-        logger.info("[Game-runner] no need to reinforce a third time, wait for settle")
-        //should sleep for an hour or so
-        break
+/**
+* Function that analyzes team data, and if necessary retrieves and analyzes mine data to determine the next move. Currently makes those moves as well. 
+* @author   Wheels
+* @param    {Object} team    Mining Team object
+* @return   {string}         The necessary action given the mines state, (start|wait|reinforce|end)
+*/
+async function parseMine(team){
+  const logger = parentLogger.child({ file: 'index.js'}, { team: team['team_id'] }, { function: "parseMine" })
+  if (team['game_id'] == null){
+      logger.info(`There does not appear to be an active mine for team ${team['team_id']}. We should start one.`)
+      //next 8 lines will be removed and called from a different function
+      if (BREEDING){
+        logger.info(`Breeding mode enabled, starting games forbidden`)
+        return 'wait'
       }
-      phaseLogger(gameState)
-      reinforcementWrapper(mine)
-      break
-      //idk, when this phase or attack is the most recent, I think I need to reinforce
-      /* crabsForHire = await getCrabsForHire()
-      crabs = await chooseCrab(mine, crabsForHire)
-      //crabs is now an ordered list of the best crabs instead of 1 crab
-      if (await checkPriceAgainstLimit(crabs[0])) {
-        logger.info(`[Game-runner] selecting the following crab ${crabs[0]}`)
-        reinforceTeam(mine['result']['game_id'], crabs[0]['id'], crabs[0]['price'])
-        .then(logger.http("[Game-runner] Team Reinforced"))
-        break
-      } else {
-        logger.warn("[Game-runner] Crab rental is a no-go. Either the crab was too expensive or a different error occured.")
-        process.exit(0)
-      } */
-      
-    case 'reinforce-defense': //means it's their turn, and I need to chill
-      phaseLogger(gameState)
-      break
-    case 'settle':
-      phaseLogger(gameState)
-      gameEnd = new Date(mine['result']['end_time'] * 1000)
-      currentTime = new Date()
-      timeUntilGameEnds = new Date(gameEnd - currentTime)
-      //console.log(gameEnd)
-      //console.log(currentTime)
-      //console.log(timeUntilGameEnds)
-
-      if (Math.sign(timeUntilGameEnds) ==1) {
-        logger.info(`[Game-runner] game still running until ${gameEnd}`)
-        //setTimeout(function() {
-        //  console.log("Time's up! Game should be over now")
-        //  endGame(mine['result']['game_id'])
-      //}, timeUntilGameEnds);
-      } else {
-        logger.info(`[Game-runner] Game scheduled to end at ${gameEnd}, currently it's ${currentTime}, lets end the game`)
-        endGame(mine['result']['game_id'])
+      const signedStartGameTX = await startGame(team['team_id'])
+      const status = await sendTx(signedStartGameTX);
+      logger.info(`status: ${status}`,{ team: team['team_id'] })
+      if (status == statusEnum.SUCCESS){
+          logger.info("TX success",{ team: team['team_id'] })
+      } else if (status == statusEnum.FAIL){
+          logger.info("TX fail",{ team: team['team_id'] })
       }
-
-      break
-    case 'start':
-      logger.info("[Game-runner] Starting game...")
-      startGame(mine['result']['team_id'])
-      .then(logger.http("[Game-runner] Game started"))
-      break
+      return 'start'
   }
-}
-
-
-async function gameRunner() {
-  if (ACTIVE == 'False'){process.exit(0)}
-  logger.info(`[Game-runner] Retrieving lastest game ID for ${ADDRESS}`)
-  game_info = await retrieveLatestGameInfo(ADDRESS)
-  logger.info(game_info)
-  if (game_info['game_id'] == 'NO_GAME') {
-    logger.info(`[Game-runner] no game ID found for ${ADDRESS}, attempting to start game...`)
-    startGame(game_info['team_id'])
+  logger.info(`Retrieving mine object for Mine: ${team['game_id']}`)
+  let mine = await getMineInfo(team['game_id'])
+  logger.debug(`Got Mine: ${JSON.stringify(mine)}`)
+  //is the game over? if time between last action and now is more than 30m, it's done
+  let lastAction = mine['result']['process'][mine['result']['process'].length - 1]
+  let lastActionTime = lastAction['transaction_time']
+  let gameEndTime = mine['result']['end_time']
+  let now = Date.now()
+  //logger.info(now)
+  let currentTime = Math.round(now/1000)
+  //let gameRound = mine['result']['game_round'] I think they updated the mainnet game
+  let gameRound = mine['result']['round']
+  var phaseEnd = lastActionTime + 30*60;
+  logger.debug(`The current time is: ${currentTime}`)
+  logger.debug(`The last action time is: ${lastActionTime}`)
+  logger.debug(`The phase end time is: ${phaseEnd}`)
+  logger.debug(`The game end time is: ${gameEndTime}`)
+  //logger.info(currentTime)
+  //check to see if game is over or someone is out of time
+  
+  //if the game is over, end the game
+  if (currentTime > gameEndTime) {
+      logger.info(`The game should be over, the current time is ${currentTime} and that's greater than the end time of ${gameEndTime}`)
+      //next 8 lines will be removed and called from a different function
+      const signedEndGameTX = await endGame(mine['result']['game_id'])
+      const status = await sendTx(signedEndGameTX);
+      logger.info(`status: ${status}`)
+      if (status == statusEnum.SUCCESS){
+          logger.info("TX success")
+      } else if (status == statusEnum.FAIL){
+          logger.info("TX fail")
+      }
+      return 'end'
+  }
+  //if the turn has timed out, wait for game to end, not working for some reason
+  else if (currentTime > phaseEnd){
+      logger.info(`The game should be over, more than 30 min have elapsed since the last action`)
+      return 'wait'
+  } 
+  //if the last turn has been taken, wait for game to end
+  else if (gameRound == 4) {
+      logger.info(`The game is essentially over, the last turn has been taken`)
+      return 'wait'
+  //otherwise, play the game
   } else {
-    const mine = await getMineInfo(game_info)
-    //console.log(`[Game-runner] Retrieved object for Mine ${latestGameID}:`)
-    logger.info(`[Game-runner] ${JSON.stringify(mine)}`)
-
-    //loop goes here?
-    //console.log(`[Game-runner] ${game_id}`)
-    playGame(mine)
-    logger.info(`[Game-runner] closing down...`)
+      logger.info(`The game is still going until ${gameEndTime}`)
+      logger.info(`${gameRound}`)
+      if (gameRound == 0 || gameRound == 2){
+          logger.info(`Gotta reinforce the defenses!`)
+          //next line will be removed and called from a different function
+          await reinforcementWrapper(mine)
+          return 'reinforce'
+      } else if (gameRound == null || gameRound == 1 || gameRound == 3){
+          logger.info(`Waiting for opponent to go`)
+          return 'wait'
+      }
   }
 }
-//gameRunner()
-module.exports = {gameRunner, playGame, phaseLogger}
+
+/**
+* Function that is the entry point. Attempts to play the game for each team at a given address
+* @author   Wheels
+*/
+async function gameRunner() {
+  //query address for teams, for each team, check status
+  //based on strategy, run game
+  const logger = parentLogger.child({ file: 'index.js'}, { address: ADDRESS }, { function: "gameRunner" })
+  if (ACTIVE == 'False') { process.exit(0) }
+  const teamData = await getTeamsAtAddress(ADDRESS)
+  ///logger.info(teamData.length)
+  for (let i = 0; i < teamData.length; i++) {
+    //for each team
+    const teamID = teamData[i]['team_id']
+    //logger.info(i)
+    if (teamData[i]['crabada_id_1'] == null || teamData[i]['crabada_id_2'] == null || teamData[i]['crabada_id_3'] == null){
+      logger.info(`${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`,{ team: teamID })
+      continue
+    }
+    let output = await parseMine(teamData[i])
+    if (output == 'reinforce'){
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+}
+
+
+
+module.exports = { gameRunner }
+
