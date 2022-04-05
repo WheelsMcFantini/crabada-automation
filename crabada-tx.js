@@ -356,7 +356,7 @@ async function checkPriceAgainstLimit(crab){
     //logger.info("crab here:")
     //logger.info(crab)
     const bn = web3.utils.toBN(crab['price'])
-    const priceCap = web3.utils.toBN("35000000000000000000")
+    const priceCap = web3.utils.toBN("23000000000000000000")
     //logger.info(await web3.utils.fromWei(bn, 'Ether'))
     //logger.info(await web3.utils.fromWei(priceCap, 'Ether'))
     if (bn.lte(priceCap)){
