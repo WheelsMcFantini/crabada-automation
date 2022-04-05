@@ -96,7 +96,7 @@ async function getCrabsForHire() {
       logger.error(JSON.stringify(error))
     }
   //Tavern Reinforce
-    const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
+    const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=150'
     logger.info(`Retrieving mercenary info from Tavern`)
 
     try {
