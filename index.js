@@ -1,11 +1,17 @@
 /*eslint-env node, mocha */
 require('dotenv').config();
-const ADDRESS = process.env.ADDRESS
-const ACTIVE = process.env.ACTIVE
-const BREEDING = process.env.BREEDING
+const { ACTIVE, STAGGER, BREEDING, ADDRESS, TAVERN_ENABLED, START_INTERVAL } = process.env;
+const {getSortedStartTimes, staggeredGameStartable} = require('./crabada-strategy')
 const { getTeamsAtAddress, getMineInfo, reinforcementWrapper } = require('./crabada-game.js')
 const { startGame, endGame, sendTx, statusEnum} = require('./crabada-tx.js')
 const parentLogger = require('./utilities.js')
+const logMetadata = { file: 'index.js' , address: ADDRESS }
+parentLogger.debug(`loaded the following variables`, logMetadata)
+parentLogger.debug(`ADDRESS: ${ADDRESS}`, logMetadata)
+parentLogger.debug(`ACTIVE: ${ACTIVE}`, logMetadata)
+parentLogger.debug(`BREEDING: ${BREEDING}`, logMetadata)
+parentLogger.debug(`TAVERN_ENABLED: ${TAVERN_ENABLED}`, logMetadata)
+parentLogger.debug(`START_INTERVAL: ${START_INTERVAL}`, logMetadata)
 
 
 /**
@@ -14,15 +20,24 @@ const parentLogger = require('./utilities.js')
 * @param    {Object} team    Mining Team object
 * @return   {string}         The necessary action given the mines state, (start|wait|reinforce|end)
 */
-async function parseMine(team){
+async function parseMine(team, startable){
   const logger = parentLogger.child({ file: 'index.js'}, { team: team['team_id'] }, { function: "parseMine" })
   if (team['game_id'] == null){
       logger.info(`There does not appear to be an active mine for team ${team['team_id']}. We should start one.`)
       //next 8 lines will be removed and called from a different function
-      if (BREEDING){
+      if (BREEDING == "True"){
         logger.info(`Breeding mode enabled, starting games forbidden`)
         return 'wait'
       }
+      if (startable == 'false') {
+        logger.info(`Stagger Start preventing start`)
+        return 'wait'
+      }
+      if (startable == 'started') {
+        logger.info(`Already started a team this interval preventing start`)
+        return 'wait'
+      }
+      //get time since last game start, make it true or false?
       const signedStartGameTX = await startGame(team['team_id'])
       const status = await sendTx(signedStartGameTX);
       logger.info(`status: ${status}`,{ team: team['team_id'] })
@@ -83,7 +98,7 @@ async function parseMine(team){
       if (gameRound == 0 || gameRound == 2){
           logger.info(`Gotta reinforce the defenses!`)
           //next line will be removed and called from a different function
-          await reinforcementWrapper(mine)
+          await reinforcementWrapper(mine, TAVERN_ENABLED)
           return 'reinforce'
       } else if (gameRound == null || gameRound == 1 || gameRound == 3){
           logger.info(`Waiting for opponent to go`)
@@ -100,8 +115,14 @@ async function gameRunner() {
   //query address for teams, for each team, check status
   //based on strategy, run game
   const logger = parentLogger.child({ file: 'index.js'}, { address: ADDRESS }, { function: "gameRunner" })
-  if (ACTIVE == 'False') { process.exit(0) }
+  if (ACTIVE == 'False') { return }
   const teamData = await getTeamsAtAddress(ADDRESS)
+  logger.debug(`teamData Content: ${teamData}`)
+  const startTimeList = await getSortedStartTimes(teamData)
+  logger.debug(`startTimeList Content: ${JSON.stringify(startTimeList)}`)
+  let startable = await staggeredGameStartable(startTimeList, START_INTERVAL)
+  logger.debug(`Startable Type: ${typeof(startable)}`)
+  logger.debug(`Startable Content: ${startable}`)
   ///logger.info(teamData.length)
   for (let i = 0; i < teamData.length; i++) {
     //for each team
@@ -111,14 +132,22 @@ async function gameRunner() {
       logger.info(`${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`,{ team: teamID })
       continue
     }
-    let output = await parseMine(teamData[i])
+    if (STAGGER == 'true') {
+      logger.info(`Stagger content: ${STAGGER}`)
+      let result = await parseMine(teamData[i], startable)
+      if (result == 'start'){
+        startable = 'started'
+      }
+    } else {
+      await parseMine(teamData[i], 'true')
+    }
+/*     let output = await parseMine(teamData[i])
     if (output == 'reinforce'){
       await new Promise(resolve => setTimeout(resolve, 5000));
-    }
+    }*/
   }
 }
 
 
-
+gameRunner()
 module.exports = { gameRunner }
-

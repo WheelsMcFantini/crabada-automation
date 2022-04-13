@@ -2,8 +2,9 @@
 /* eslint-disable no-unused-vars */
 //Contains each AVAX transaction needed for gameplay plus helper methods
 require('dotenv').config();
-const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT } = process.env;
-const SWIMMER_NETWORK = false
+const { AVAX_API_URL, PRIVATE_KEY, ADDRESS, CRABADA_CONTRACT, SWIMMER_NETWORK } = process.env;
+
+
 //const AVAX_API_URL = process.env.AVAX_API_URL//swimmer
 //const PRIVATE_KEY = process.env.PRIVATE_KEY
 //const ADDRESS = process.env.ADDRESS
@@ -12,6 +13,14 @@ const Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(AVAX_API_URL));
 const parentLogger = require('./utilities.js')
 const logMetadata = { file: 'crabada-tx.js' , address: ADDRESS }
+
+
+parentLogger.debug(`loaded the following variables`, logMetadata)
+parentLogger.debug(`AVAX_API_URL: ${AVAX_API_URL}`, logMetadata)
+parentLogger.debug(`ADDRESS: ${ADDRESS}`, logMetadata)
+parentLogger.debug(`CRABADA_CONTRACT: ${CRABADA_CONTRACT}`, logMetadata)
+parentLogger.debug(`SWIMMER_NETWORK: ${SWIMMER_NETWORK}`, logMetadata)
+
 //const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 const statusEnum = Object.freeze({
@@ -123,7 +132,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
          logger.debug(`gasEstimate: ${gasEstimate}`)
     }
     catch (error){
-        logger.log(`${JSON.stringify(error)}`)
+        logger.error(`${JSON.stringify(error)}`)
         return "failed"
     }
     let transaction = {}
@@ -191,7 +200,7 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
          logger.debug(`gasEstimate: ${gasEstimate}`)
         }
         catch (error){
-            logger.log(`${JSON.stringify(error)}`)
+            logger.error(`${JSON.stringify(error)}`)
             return "failed"
         }
     let transaction = {}
@@ -276,17 +285,17 @@ async function createTransaction(transactionPayload){
 */
 async function sendTx(signedTransaction){
     const logger = parentLogger.child({ function: "sendTx" }, logMetadata);
-
+    
     const sendTxResult = web3.eth.sendSignedTransaction(signedTransaction.rawTransaction)
         .on('transactionHash', function(hash){logger.info(`🎉 The hash of your transaction is: ${hash}`)})
-        .on('receipt', function(receipt){logger.info(`Successfully mined transaction for ${receipt['cumulativeGasUsed']*receipt['effectiveGasPrice']} Gwei`);logger.debug(`Reciept: ${JSON.stringify(receipt)}`)
+        .on('receipt', function(receipt){logger.info(`Successfully mined transaction for ${receipt['cumulativeGasUsed']*receipt['effectiveGasPrice']} Gwei`);logger.debug(`Reciept: ${JSON.stringify(receipt)}`)})
         .on('error', function(error, reciept){
             //examine the error object, to try and get to see if the crab was locked. If so, go again. 
             logger.info(`❗Something went wrong while processing your transaction. Error->${JSON.stringify(error)}, Reciept->${reciept}`)
         })
-        //resolves here
-})
+        await new Promise(resolve => setTimeout(resolve, 5000))    
 }
+
 
 /**
 * Function that creates and signs an endGame transaction
