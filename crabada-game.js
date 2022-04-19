@@ -5,6 +5,22 @@ const { AVAX_API_URL, ADDRESS, SWIMMER_NETWORK } = process.env;
 const MINE_PATH = '/public/idle/mine/'
 const TEAM_PATH = '/public/idle/teams?user_address='
 const IDLE_API = 'idle-api.crabada.com'
+const options = {
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "max-age=0",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+  },
+  "referrerPolicy": "strict-origin-when-cross-origin",
+  "body": null,
+  "method": "GET"
+}
 // if (SWIMMER_NETWORK == "True") {
 //const IDLE_API = 'idle-game-subnet-test-api.crabada.com'
 //} 
@@ -16,7 +32,7 @@ const parentLogger = require('./utilities.js')
 const logMetadata = { file: 'crabada-game.js', address: ADDRESS }
 parentLogger.debug(`loaded the following variables`, logMetadata)
 parentLogger.debug(`ADDRESS: ${ADDRESS}`, logMetadata)
-parentLogger.debug(`ADDRESS: ${AVAX_API_URL}`, logMetadata)
+parentLogger.debug(`AVAX_API_URL: ${AVAX_API_URL}`, logMetadata)
 parentLogger.debug(`BREEDING: ${SWIMMER_NETWORK}`, logMetadata)
 parentLogger.debug(`IDLE_API: ${IDLE_API}`, logMetadata)
 
@@ -42,14 +58,19 @@ async function getTeamsAtAddress(address) {
   logger.info(`Fetching teams at URL: ${url}`)
   let data = {}
   try {
-    data = await fetch(url)
-    logger.info(data)
+    data = await fetch(url, options)
+    logger.info(`Got a successful response status: ${data.status}`)
+    logger.info(`the retrieved data:`)
+    logger.info(JSON.stringify(data.body))
+    const teamData = await data.json()
+    return teamData['result']['data']
   } catch (error) {
-    logger.error(error)
+    logger.warn(JSON.stringify(error))
   }
-  const teamData = await data.json()
+
+  
   //teams can be LOCK, AVAILABLE, MINING, LOOTING?, only return teams with 3 crabs
-  return teamData['result']['data']
+  
 }
 
 /**
@@ -65,7 +86,7 @@ async function getMineInfo(mine_id) {
   const url = `https://${IDLE_API}${MINE_PATH}${mine_id}`
   try {
     logger.info(`Fetching mine info at URL: ${url}`)
-    const data = await fetch(url)
+    const data = await fetch(url, options)
     logger.info(`Got a successful response status: ${data.status}`)
     const mine = await data.json()
     return mine
@@ -139,7 +160,7 @@ async function getCrabsForHire(tavern_enabled) {
   logger.info(`Checking inventory for idle crabs`)
   try {
     logger.info(`Fetching inventory info at URL: ${inventory_url}`)
-    const data = await fetch(inventory_url)
+    const data = await fetch(inventory_url, options)
     logger.info(`Got a successful response status: ${data.status}`)
     const inventory = await data.json()
     //if there's crabs, create and return the rentable ones
@@ -158,7 +179,7 @@ async function getCrabsForHire(tavern_enabled) {
         const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
         logger.info(`Retrieving mercenary info from Tavern`)
         try {
-          const data = await fetch(tavern_url)
+          const data = await fetch(tavern_url, options)
           logger.info(data)
           const tavern = await data.json()
           return { crabsForHire: tavern['result']['data'], source: "tavern" }

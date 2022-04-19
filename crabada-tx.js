@@ -68,7 +68,7 @@ async function startGame(teamId) {
     logger.debug(`gasEstimate: ${gasEstimate}`)
 
     let transaction = {}
-    if (SWIMMER_NETWORK){
+    if (SWIMMER_NETWORK == "true"){
         transaction = {
             'to': CRABADA_CONTRACT,
             'gas': gasEstimate, //320000
@@ -87,6 +87,7 @@ async function startGame(teamId) {
             'data': startGameData
         };
     }
+    logger.debug(`Transaction data to be signed: ${JSON.stringify(transaction)}`)
 
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
     return signedTx
@@ -136,7 +137,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
         return "failed"
     }
     let transaction = {}
-    if (SWIMMER_NETWORK){
+    if (SWIMMER_NETWORK == "true"){
         transaction = {
             'to': CRABADA_CONTRACT,
             'gas': gasEstimate, //320000
@@ -155,7 +156,7 @@ async function reinforceTeam(gameId, crabadaId, borrowPrice) {
             'data': reinforceGameData
         };
     }
-    logger.info("tx created but not signed")
+    logger.debug(`Transaction data to be signed: ${JSON.stringify(transaction)}`)
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
     logger.info("done with reinforce")
     return signedTx
@@ -204,7 +205,7 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
             return "failed"
         }
     let transaction = {}
-    if (SWIMMER_NETWORK){
+    if (SWIMMER_NETWORK == "true"){
         transaction = {
             'to': CRABADA_CONTRACT,
             'gas': gasEstimate, //320000
@@ -223,7 +224,7 @@ async function reinforceTeamFromInventory(gameId, crabadaId) {
             'data': reinforceGameData
         };
     }
-    logger.info("tx created but not signed")
+    logger.debug(`Transaction data to be signed: ${JSON.stringify(transaction)}`)
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
     logger.info("done with reinforce")
     return signedTx
@@ -272,7 +273,7 @@ async function createTransaction(transactionPayload){
         // optional data field to send message or execute smart contract
         'data': transactionPayload
     };
-
+    logger.debug(`Transaction data to be signed: ${JSON.stringify(transaction)}`)
     const signedTx = await web3.eth.accounts.signTransaction(transaction, PRIVATE_KEY);
 
     return signedTx
@@ -291,7 +292,7 @@ async function sendTx(signedTransaction){
         .on('receipt', function(receipt){logger.info(`Successfully mined transaction for ${receipt['cumulativeGasUsed']*receipt['effectiveGasPrice']} Gwei`);logger.debug(`Reciept: ${JSON.stringify(receipt)}`)})
         .on('error', function(error, reciept){
             //examine the error object, to try and get to see if the crab was locked. If so, go again. 
-            logger.info(`❗Something went wrong while processing your transaction. Error->${JSON.stringify(error)}, Reciept->${reciept}`)
+            logger.info(`❗Something went wrong while processing your transaction. Error->${JSON.stringify(error)}, Tx -> ${JSON.stringify(signedTransaction)}, Reciept->${reciept}`)
         })
         await new Promise(resolve => setTimeout(resolve, 5000))    
 }
@@ -329,7 +330,7 @@ async function endGame(gameId) {
     logger.debug(`gasEstimate: ${gasEstimate}`)
     //logger.info(closeGameData)
     let transaction = {}
-    if (SWIMMER_NETWORK){
+    if (SWIMMER_NETWORK == "true"){
         transaction = {
             'to': CRABADA_CONTRACT,
             'gas': gasEstimate, //320000

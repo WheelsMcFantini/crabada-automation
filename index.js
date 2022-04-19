@@ -117,7 +117,7 @@ async function gameRunner() {
   const logger = parentLogger.child({ file: 'index.js'}, { address: ADDRESS }, { function: "gameRunner" })
   if (ACTIVE == 'False') { return }
   const teamData = await getTeamsAtAddress(ADDRESS)
-  logger.debug(`teamData Content: ${teamData}`)
+  logger.debug(`teamData Content: ${JSON.stringify(teamData)}`)
   const startTimeList = await getSortedStartTimes(teamData)
   logger.debug(`startTimeList Content: ${JSON.stringify(startTimeList)}`)
   let startable = await staggeredGameStartable(startTimeList, START_INTERVAL)
@@ -149,5 +149,5 @@ async function gameRunner() {
 }
 
 
-//gameRunner()
+gameRunner()
 module.exports = { gameRunner }
