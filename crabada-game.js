@@ -176,8 +176,8 @@ async function getCrabsForHire(tavern_enabled) {
         //Tavern Reinforce
         logger.info(`The Tavern is enabled!`)
         logger.debug(`tavern_enabled: ${tavern_enabled}`)
-        const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=10'
-        logger.info(`Retrieving mercenary info from Tavern`)
+        const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=50'
+        logger.info(`Retrieving mercenary info from Tavern at ${tavern_url}`)
         try {
           const data = await fetch(tavern_url, options)
           logger.info(data)
