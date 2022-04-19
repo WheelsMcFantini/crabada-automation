@@ -149,5 +149,5 @@ async function gameRunner() {
 }
 
 
-gameRunner()
+//gameRunner()
 module.exports = { gameRunner }
