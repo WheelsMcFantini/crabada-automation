@@ -54,7 +54,8 @@ async function getTeamsAtAddress(address) {
   const logger = parentLogger.child({ function: "getTeamsAtAddress" }, logMetadata)
   logger.debug(`Recieved input address: ${address}`)
 
-  const url = `https://${IDLE_API}${TEAM_PATH}${address}`
+  const url = `https://${IDLE_API}${TEAM_PATH}${address}&limit=20`
+  
   logger.info(`Fetching teams at URL: ${url}`)
   let data = {}
   try {
@@ -176,7 +177,7 @@ async function getCrabsForHire(tavern_enabled) {
         //Tavern Reinforce
         logger.info(`The Tavern is enabled!`)
         logger.debug(`tavern_enabled: ${tavern_enabled}`)
-        const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=50'
+        const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=100'
         logger.info(`Retrieving mercenary info from Tavern at ${tavern_url}`)
         try {
           const data = await fetch(tavern_url, options)

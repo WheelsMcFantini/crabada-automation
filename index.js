@@ -33,6 +33,10 @@ async function parseMine(team, startable){
         logger.info(`Stagger Start preventing start`)
         return 'wait'
       }
+      if (startable == 'breeding') {
+        logger.info(`This team contains a crab tagged for breeding`)
+        return 'wait'
+      }
       if (startable == 'started') {
         logger.info(`Already started a team this interval preventing start`)
         return 'wait'
@@ -132,6 +136,15 @@ async function gameRunner() {
       logger.info(`${teamData[i]['team_id']} appears to not have enough crabs to go mine, skipping for now`,{ team: teamID })
       continue
     }
+
+    for (let j = 0; j < crabsToBreed.length; j++) {
+      if (teamData[i]['crabada_id_1'] == crabsToBreed[j] || teamData[i]['crabada_id_2'] == crabsToBreed[j] || teamData[i]['crabada_id_3'] == crabsToBreed[j]){
+          logger.info(`${teamData[i]['team_id']} appears to have a crab tagged for breeding. Skipping for now`)
+          startable = 'breeding'
+        }
+  }
+    
+    //if any of the crabs here are in the breeding list, dont start the team
     if (STAGGER == 'true') {
       logger.info(`Stagger content: ${STAGGER}`)
       let result = await parseMine(teamData[i], startable)
