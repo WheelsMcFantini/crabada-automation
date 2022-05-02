@@ -137,12 +137,12 @@ async function gameRunner() {
       continue
     }
 
-    for (let j = 0; j < crabsToBreed.length; j++) {
+/*     for (let j = 0; j < crabsToBreed.length; j++) {
       if (teamData[i]['crabada_id_1'] == crabsToBreed[j] || teamData[i]['crabada_id_2'] == crabsToBreed[j] || teamData[i]['crabada_id_3'] == crabsToBreed[j]){
           logger.info(`${teamData[i]['team_id']} appears to have a crab tagged for breeding. Skipping for now`)
           startable = 'breeding'
         }
-  }
+  } */
     
     //if any of the crabs here are in the breeding list, dont start the team
     if (STAGGER == 'true') {
