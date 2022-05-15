@@ -4,7 +4,7 @@ require('dotenv').config();
 const { AVAX_API_URL, ADDRESS, SWIMMER_NETWORK } = process.env;
 const MINE_PATH = '/public/idle/mine/'
 const TEAM_PATH = '/public/idle/teams?user_address='
-const IDLE_API = 'idle-api.crabada.com'
+const IDLE_API = 'idle-game-api.crabada.com'
 const options = {
   "headers": {
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
