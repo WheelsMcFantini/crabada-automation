@@ -157,7 +157,7 @@ async function getCrabsForHire(tavern_enabled) {
   logger.debug(`Recieved Tavern Enabled Status ${tavern_enabled}`)
   //check inv for rentables. If no rentables check tavern enabled, if not enabled, return no crabs. if enabled, do tavern. 
   //Inventory Reinforce
-  const inventory_url = `https://idle-api.crabada.com/public/idle/crabadas/can-join-team?user_address=${ADDRESS}`
+  const inventory_url = `https://idle-game-api.crabada.com/public/idle/crabadas/can-join-team?user_address=${ADDRESS}`
   logger.info(`Checking inventory for idle crabs`)
   try {
     logger.info(`Fetching inventory info at URL: ${inventory_url}`)
@@ -177,7 +177,7 @@ async function getCrabsForHire(tavern_enabled) {
         //Tavern Reinforce
         logger.info(`The Tavern is enabled!`)
         logger.debug(`tavern_enabled: ${tavern_enabled}`)
-        const tavern_url = 'https://idle-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=100'
+        const tavern_url = 'https://idle-game-api.crabada.com/public/idle/crabadas/lending?orderBy=mine_point&order=desc&page=1&limit=100'
         logger.info(`Retrieving mercenary info from Tavern at ${tavern_url}`)
         try {
           const data = await fetch(tavern_url, options)
