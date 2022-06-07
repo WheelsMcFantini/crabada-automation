@@ -21,12 +21,19 @@ This project can run locally or in GCP. I ran mine in GCP but will include instr
 Locally, you'll want to provide a dotenv file in crabada-automation with the following variables:
 
 API_URL= Swimmer network RPC URL
+
 CRABADA_CONTRACT= Swimmer network Crabada Contract address
+
 ADDRESS= the address of the playing account
+
 PRIVATE_KEY=the private key of the playing account
+
 LEVEL="(info|debug)"
+
 ACTIVE=(True|False)
+
 BREEDING=(leave blank or set to "True")
+
 TAVERN_ENABLED="(true|false)"
 STAGGER="(true|false)"
 START_INTERVAL=num_of_minutes
