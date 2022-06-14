@@ -16,7 +16,7 @@ was also a big win, and part of what made running it so easy.
 I think it would be super cool to get something like this working for the battle game. 
 
 
-This project can run locally or in GCP. I ran mine in GCP but will include instructions for both, local first.
+This project can run locally or in GCP. I ran mine in GCP but will include instructions for local first, GCP if they don't nerf idle game rewards. 
 
 Locally, you'll want to provide a dotenv file in crabada-automation with the following variables:
 
@@ -58,4 +58,5 @@ Gameplay:
 6. if we have inventory crabs, reinforce with the best one
 7. if no inventory crabs, check tavern enabeld
 8. if tavern not enabled, fail to reinforce, otherwise reinforce with best crab from tavern 
-9. 
+
+please reach out to wheelsmcfantini@gmail.com with questions or comments. 
