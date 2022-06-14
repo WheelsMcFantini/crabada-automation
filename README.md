@@ -59,4 +59,5 @@ Gameplay:
 7. if no inventory crabs, check tavern enabeld
 8. if tavern not enabled, fail to reinforce, otherwise reinforce with best crab from tavern 
 
+This code got a little bit messy towards the end, I tried to implement some software engineering best practices with a friend for a short time.
 please reach out to wheelsmcfantini@gmail.com with questions or comments. 
